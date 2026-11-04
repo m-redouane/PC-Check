@@ -84,7 +84,7 @@ PC-Check/
 - [x] **V0.2** — Détection GPU (VRAM 64-bit) & Stockage physique
 - [x] **V0.3** — Moteur de diagnostic contextuel & règles métier
 - [x] **V0.4** — Dashboard GUI sombre avec PySide6
-- [ ] **V0.5** — Module d'exportation de rapport PDF (ReportLab)
+- [x] **V0.5** — Module d'exportation de rapport PDF (ReportLab)
 - [ ] **V0.6** — Gestion de la barre de progression & capteurs thermiques
 - [ ] **V1.0** — Packaging `.exe` autonome, système de licences et commercialisation
 
