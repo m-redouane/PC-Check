@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QFrame, QScrollArea, QSizePolicy, QMessageBox, 
                              QStackedWidget, QTreeWidget, QTreeWidgetItem, QHeaderView, QFileDialog)
 from PySide6.QtCore import Qt, QThread, Signal, QRectF, Property, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtGui import QPainter, QColor, QPen, QFont
+from PySide6.QtGui import QPainter, QColor, QPen, QFont, QIcon
 
 from core.hardware import HardwareDetector
 from core.analyzer import DiagnosticEngine
@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
         
         self.sensors_engine = HardwareSensors()
         self.live_timer = QTimer(self)
-        self.live_timer.setInterval(1000)
+        self.live_timer.setInterval(1500) # Légèrement augmenté pour le parcours complet de l'arbre
         self.live_timer.timeout.connect(self.update_live_sensors)
 
         self.setStyleSheet("""
@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
             QPushButton.filter-btn[active="true"] { background-color: #3B82F6; color: #FAFAFA; border: 1px solid #3B82F6; }
 
             QTreeWidget { background-color: #141417; color: #FAFAFA; border: 1px solid #27272A; border-radius: 6px; outline: 0; gridline-color: #27272A; }
-            QTreeWidget::item { padding: 6px; border-bottom: 1px solid #1c1c21; border-right: 1px solid #27272A; }
+            QTreeWidget::item { padding: 4px; border-bottom: 1px solid #1c1c21; }
             QTreeWidget::item:selected { background-color: #27272A; }
             QHeaderView::section { background-color: #18181B; color: #A1A1AA; padding: 8px; border: none; border-right: 1px solid #27272A; font-weight: 600; font-size: 12px; }
         """)
@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         sidebar_layout.addWidget(brand_lbl)
 
         self.nav_buttons = {}
-        self.nav_items = [("Vue d'ensemble", 0), ("Composants", 1), ("Diagnostic", 2), ("Paramètres", 3)]
+        self.nav_items = [("Vue d'ensemble", 0), ("Capteurs Détaillés", 1), ("Diagnostic", 2), ("Paramètres", 3)]
 
         for text, index in self.nav_items:
             btn = QPushButton(f"  {text}")
@@ -149,7 +149,7 @@ class MainWindow(QMainWindow):
             self.nav_buttons[index] = btn
             
         sidebar_layout.addStretch()
-        version_lbl = QLabel("v1.0.5 • SSD Live")
+        version_lbl = QLabel("v1.0.6 • LHM Tree View")
         version_lbl.setStyleSheet("color: #52525B; font-size: 11px; padding: 8px;")
         sidebar_layout.addWidget(version_lbl)
         layout.addWidget(sidebar)
@@ -302,20 +302,21 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
 
-        subtitle = QLabel("Explorateur Matériel Pro — 3 Colonnes : [Composant / Capteur] | [Utilisation Live] | [Température Live]")
+        subtitle = QLabel("Explorateur Matériel LHM - Affichage Hiérarchique Complet des Capteurs")
         subtitle.setStyleSheet("color: #A1A1AA; font-size: 12px;")
         layout.addWidget(subtitle)
 
+        # Structure du nouvel arbre : Sensor | Value | Max
         self.comp_tree = QTreeWidget()
         self.comp_tree.setColumnCount(3)
-        self.comp_tree.setHeaderLabels(["Composant / Capteur", "Utilisation (Live)", "Température (Live)"])
+        self.comp_tree.setHeaderLabels(["Sensor", "Value", "Max"])
         
         header = self.comp_tree.header()
         header.setSectionResizeMode(0, QHeaderView.Interactive)
         header.setSectionResizeMode(1, QHeaderView.Interactive)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
-        self.comp_tree.setColumnWidth(0, 320)
-        self.comp_tree.setColumnWidth(1, 180)
+        self.comp_tree.setColumnWidth(0, 400)
+        self.comp_tree.setColumnWidth(1, 120)
         
         layout.addWidget(self.comp_tree)
         return page
@@ -387,7 +388,7 @@ class MainWindow(QMainWindow):
         box_layout = QVBoxLayout(info_box)
         box_layout.setContentsMargins(16, 16, 16, 16)
         
-        lbl_info = QLabel("<b>PC Check — Édition Professionnelle</b><br>Logiciel de diagnostic matériel haute performance 100% local.<br><br>• Version : 1.0.5 (SSD Live)<br>• Concepteur : Redouane MHEND")
+        lbl_info = QLabel("<b>PC Check — Édition Professionnelle</b><br>Logiciel de diagnostic matériel haute performance 100% local.<br><br>• Version : 1.0.6 (LHM Tree View)<br>• Concepteur : Redouane MHEND")
         lbl_info.setStyleSheet("color: #D4D4D8; font-size: 13px; line-height: 1.5;")
         box_layout.addWidget(lbl_info)
         
@@ -503,7 +504,7 @@ class MainWindow(QMainWindow):
                 self.animate_gauge(self.gauge_disk, d.get('percent_used', 0))
                 self.lbl_disk_sub.setText(f"Partition {d.get('mountpoint', 'C:')}\n{d.get('free_gb', '-')} Go libres sur {d.get('total_gb', '-')} Go")
 
-            self.populate_components_tree(hw)
+            self.populate_components_tree_initial()
             self.populate_diagnostic_views(analysis)
 
             self.live_timer.start()
@@ -523,41 +524,97 @@ class MainWindow(QMainWindow):
             self.btn_scan.setText("Actualiser l'analyse")
             self.btn_export.setEnabled(True)
 
+    def get_color_for_category(self, cat_name):
+        colors = {
+            "Temperatures": "#EF4444",
+            "Voltages": "#EAB308",
+            "Loads": "#3B82F6",
+            "Powers": "#DC2626",
+            "Clocks": "#6366F1",
+            "Data": "#8B5CF6",
+            "Throughput": "#22C55E"
+        }
+        return QColor(colors.get(cat_name, "#A1A1AA"))
+
+    def populate_components_tree_initial(self):
+        """Construit l'arbre complet avec les catégories pour la première fois."""
+        try:
+            self.comp_tree.clear()
+            metrics = self.sensors_engine.get_live_metrics()
+            
+            pc_root = QTreeWidgetItem(self.comp_tree, ["PC-LOCAL", "", ""])
+            pc_root.setForeground(0, QColor("#FAFAFA"))
+
+            for comp in metrics.get("components", []):
+                # Ajout du composant (ex: AMD Ryzen 7 9700X)
+                comp_item = QTreeWidgetItem(pc_root, [comp["name"], "", ""])
+                comp_item.setForeground(0, QColor("#E4E4E7"))
+                
+                # On trie les catégories pour avoir un affichage propre
+                for cat_name, sensors in sorted(comp["sensor_categories"].items()):
+                    cat_item = QTreeWidgetItem(comp_item, [cat_name, "", ""])
+                    cat_item.setForeground(0, self.get_color_for_category(cat_name))
+                    
+                    for sensor in sensors:
+                        # Ajout du capteur avec sa valeur initiale (Max n'est pas encore géré, on met "-")
+                        sensor_item = QTreeWidgetItem(cat_item, [sensor["name"], sensor["value"], sensor["value"]])
+                        sensor_item.setForeground(0, QColor("#A1A1AA"))
+                        # Stocker la valeur max initiale
+                        sensor_item.setData(2, Qt.UserRole, sensor["raw_value"])
+            
+            # Déplier le nœud principal
+            self.comp_tree.expandItem(pc_root)
+            
+            # Déplier les composants
+            for i in range(pc_root.childCount()):
+                self.comp_tree.expandItem(pc_root.child(i))
+
+        except Exception as e:
+            print(f"Erreur remplissage arbre initial : {e}")
+
     def update_live_sensors(self):
-        """Actualise en direct l'utilisation et la température de tous les composants dont le SSD."""
+        """Met à jour les valeurs de l'arbre existant sans le reconstruire."""
         try:
             metrics = self.sensors_engine.get_live_metrics()
             root = self.comp_tree.invisibleRootItem()
             
-            for i in range(root.childCount()):
-                category = root.child(i)
-                cat_text = category.text(0)
+            if root.childCount() == 0:
+                return
                 
-                if "Processeur" in cat_text:
-                    category.child(0).setText(1, metrics["cpu_load"])
-                    category.child(0).setText(2, metrics["cpu_temp"])
+            pc_root = root.child(0)
+            
+            # Parcours de l'arbre existant pour mettre à jour les valeurs
+            for c_idx in range(pc_root.childCount()):
+                comp_item = pc_root.child(c_idx)
+                comp_name = comp_item.text(0)
+                
+                # Chercher le composant correspondant dans les nouvelles métriques
+                new_comp_data = next((c for c in metrics.get("components", []) if c["name"] == comp_name), None)
+                if not new_comp_data: continue
+                
+                for cat_idx in range(comp_item.childCount()):
+                    cat_item = comp_item.child(cat_idx)
+                    cat_name = cat_item.text(0)
                     
-                    cores_node = category.child(1)
-                    for c_idx in range(cores_node.childCount()):
-                        if c_idx < len(metrics["cores_load"]):
-                            cores_node.child(c_idx).setText(1, metrics["cores_load"][c_idx])
-                            cores_node.child(c_idx).setText(2, metrics["cpu_temp"])
-                            
-                elif "Mémoire" in cat_text:
-                    category.child(0).setText(1, metrics["ram_load"])
-                    category.child(0).setText(2, "-")
+                    new_sensors = new_comp_data["sensor_categories"].get(cat_name, [])
                     
-                elif "Cartes Graphiques" in cat_text:
-                    for g_idx in range(category.childCount()):
-                        category.child(g_idx).setText(1, metrics["gpu_load"])
-                        category.child(g_idx).setText(2, metrics["gpu_temp"])
+                    for s_idx in range(cat_item.childCount()):
+                        sensor_item = cat_item.child(s_idx)
+                        sensor_name = sensor_item.text(0)
                         
-                elif "Stockage" in cat_text:
-                    for d_idx in range(category.childCount()):
-                        category.child(d_idx).setText(1, metrics["disk_usage"])
-                        category.child(d_idx).setText(2, metrics["disks_temp"])
-        except Exception:
-            pass
+                        # Chercher le capteur correspondant
+                        new_s_data = next((s for s in new_sensors if s["name"] == sensor_name), None)
+                        if new_s_data:
+                            sensor_item.setText(1, new_s_data["value"])
+                            
+                            # Gestion de la valeur Max
+                            current_max_raw = sensor_item.data(2, Qt.UserRole)
+                            if current_max_raw is None or new_s_data["raw_value"] > current_max_raw:
+                                sensor_item.setData(2, Qt.UserRole, new_s_data["raw_value"])
+                                sensor_item.setText(2, new_s_data["value"])
+
+        except Exception as e:
+            pass # print(f"Erreur update arbre : {e}")
 
     def populate_diagnostic_views(self, analysis):
         while self.diag_layout.count():
@@ -638,56 +695,6 @@ class MainWindow(QMainWindow):
                 self.full_diag_layout.addWidget(row)
         
         self.full_diag_layout.addStretch()
-
-    def populate_components_tree(self, hw):
-        try:
-            self.comp_tree.clear()
-            metrics = self.sensors_engine.get_live_metrics()
-            
-            # 1. Système
-            os_root = QTreeWidgetItem(self.comp_tree, ["Système d'exploitation", f"Windows {hw.get('os', {}).get('release', '')}", "-"])
-            os_root.setForeground(0, QColor("#FAFAFA"))
-            QTreeWidgetItem(os_root, ["Architecture", hw.get('os', {}).get('architecture', 'N/A'), "-"])
-            QTreeWidgetItem(os_root, ["Version / Build", hw.get('os', {}).get('version', 'N/A'), "-"])
-
-            # 2. CPU
-            cpu_info = hw.get('cpu', {})
-            cpu_root = QTreeWidgetItem(self.comp_tree, ["Processeur (CPU)", cpu_info.get('name', 'N/A'), ""])
-            cpu_root.setForeground(0, QColor("#38BDF8"))
-            
-            QTreeWidgetItem(cpu_root, ["Utilisation Globale CPU", metrics["cpu_load"], metrics["cpu_temp"]])
-            
-            cores_node = QTreeWidgetItem(cpu_root, ["Détail des Cœurs Physiques", f"{cpu_info.get('physical_cores', 8)} Cœurs", ""])
-            for i, load in enumerate(metrics["cores_load"]):
-                QTreeWidgetItem(cores_node, [f"Core #{i}", load, metrics["cpu_temp"]])
-
-            # 3. RAM
-            ram_info = hw.get('ram', {})
-            ram_root = QTreeWidgetItem(self.comp_tree, ["Mémoire Système (RAM)", f"{ram_info.get('total_gb', '-')} Go Total", "-"])
-            ram_root.setForeground(0, QColor("#22D3EE"))
-            QTreeWidgetItem(ram_root, ["Utilisation Actuelle", metrics["ram_load"], "-"])
-            QTreeWidgetItem(ram_root, ["Fréquence DRAM", f"{ram_info.get('speed_mhz', 'N/A')} MHz", "-"])
-
-            # 4. GPU
-            gpu_root = QTreeWidgetItem(self.comp_tree, ["Cartes Graphiques (GPU)", "", ""])
-            gpu_root.setForeground(0, QColor("#F43F5E"))
-            for gpu in hw.get('gpus', []):
-                vram = f"{gpu.get('vram_gb', 'N/A')} Go" if gpu.get('vram_gb') else "N/A"
-                QTreeWidgetItem(gpu_root, [gpu.get('name', 'N/A') + f" (VRAM: {vram})", metrics["gpu_load"], metrics["gpu_temp"]])
-
-            # 5. Stockage (SSD Kingston)
-            disk_root = QTreeWidgetItem(self.comp_tree, ["Stockage Physique (Disques)", "", ""])
-            disk_root.setForeground(0, QColor("#A855F7"))
-            for disk in hw.get('physical_disks', []):
-                cap = disk.get('size_gb', disk.get('total_gb', 'N/A'))
-                QTreeWidgetItem(disk_root, [disk.get('model', 'N/A') + f" ({cap} Go)", metrics["disk_usage"], metrics["disks_temp"]])
-
-            self.comp_tree.expandItem(cpu_root)
-            self.comp_tree.expandItem(gpu_root)
-            self.comp_tree.expandItem(disk_root)
-
-        except Exception as e:
-            print(f"Erreur remplissage arbre : {e}")
 
     def export_pdf(self):
         if not hasattr(self, 'last_hw_data'): return
