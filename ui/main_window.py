@@ -1,13 +1,13 @@
 import time
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QGridLayout, QLabel, QPushButton, 
-                             QFrame, QProgressBar, QScrollArea)
+                             QFrame, QProgressBar, QScrollArea, QSizePolicy, QMessageBox)
 from PySide6.QtCore import Qt, QThread, Signal
 from core.hardware import HardwareDetector
 from core.analyzer import DiagnosticEngine
+from core.report_generator import PDFReportGenerator
 
 class DiagnosticWorker(QThread):
-    """Thread secondaire pour exécuter la collecte système sans bloquer l'interface."""
     progress_updated = Signal(int, str)
     scan_completed = Signal(dict, dict)
 
@@ -54,69 +54,22 @@ class MainWindow(QMainWindow):
         self.resize(1080, 700)
         self.setMinimumSize(950, 620)
         
-        # Thème sombre sobre, typographie système épurée
         self.setStyleSheet("""
-            QMainWindow {
-                background-color: #09090B;
-            }
-            QLabel {
-                color: #FAFAFA;
-                font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
-            }
-            QFrame#sidebar {
-                background-color: #111113;
-                border-right: 1px solid #27272A;
-            }
-            QPushButton.nav-btn {
-                background-color: transparent;
-                color: #A1A1AA;
-                font-size: 13px;
-                font-weight: 500;
-                text-align: left;
-                padding: 10px 14px;
-                border-radius: 6px;
-                border: none;
-            }
-            QPushButton.nav-btn:hover {
-                background-color: #18181B;
-                color: #FAFAFA;
-            }
-            QPushButton.nav-btn[active="true"] {
-                background-color: #27272A;
-                color: #FAFAFA;
-                font-weight: 600;
-            }
-            QFrame.panel {
-                background-color: #141417;
-                border-radius: 6px;
-                border: 1px solid #27272A;
-            }
-            QProgressBar {
-                background-color: #09090B;
-                border: 1px solid #27272A;
-                border-radius: 3px;
-                height: 6px;
-            }
-            QProgressBar::chunk {
-                background-color: #3B82F6;
-                border-radius: 2px;
-            }
-            QPushButton#btn_scan {
-                background-color: #FAFAFA;
-                color: #09090B;
-                font-weight: 600;
-                font-size: 13px;
-                padding: 8px 18px;
-                border-radius: 6px;
-                border: none;
-            }
-            QPushButton#btn_scan:hover {
-                background-color: #E4E4E7;
-            }
-            QPushButton#btn_scan:disabled {
-                background-color: #27272A;
-                color: #71717A;
-            }
+            QMainWindow { background-color: #09090B; }
+            QLabel { color: #FAFAFA; font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; }
+            QFrame#sidebar { background-color: #111113; border-right: 1px solid #27272A; }
+            QPushButton.nav-btn { background-color: transparent; color: #A1A1AA; font-size: 13px; font-weight: 500; text-align: left; padding: 10px 14px; border-radius: 6px; border: none; }
+            QPushButton.nav-btn:hover { background-color: #18181B; color: #FAFAFA; }
+            QPushButton.nav-btn[active="true"] { background-color: #27272A; color: #FAFAFA; font-weight: 600; }
+            QFrame.panel { background-color: #141417; border-radius: 6px; border: 1px solid #27272A; }
+            QProgressBar { background-color: #09090B; border: 1px solid #27272A; border-radius: 3px; height: 6px; }
+            QProgressBar::chunk { background-color: #3B82F6; border-radius: 2px; }
+            QPushButton#btn_scan { background-color: #FAFAFA; color: #09090B; font-weight: 600; font-size: 13px; padding: 8px 18px; border-radius: 6px; border: none; }
+            QPushButton#btn_scan:hover { background-color: #E4E4E7; }
+            QPushButton#btn_scan:disabled { background-color: #27272A; color: #71717A; }
+            QPushButton#btn_pdf { background-color: #27272A; color: #FAFAFA; font-weight: 600; font-size: 13px; padding: 8px 18px; border-radius: 6px; border: 1px solid #3F3F46; }
+            QPushButton#btn_pdf:hover { background-color: #3F3F46; }
+            QPushButton#btn_pdf:disabled { background-color: #18181B; color: #52525B; border: 1px solid #27272A; }
         """)
 
         self.init_ui()
@@ -128,9 +81,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
-        # -----------------------------------------------------------------
-        # 1. PANNEAU LATÉRAL (SIDEBAR)
-        # -----------------------------------------------------------------
+        # PANNEAU LATÉRAL
         sidebar = QFrame()
         sidebar.setObjectName("sidebar")
         sidebar.setFixedWidth(210)
@@ -142,46 +93,39 @@ class MainWindow(QMainWindow):
         brand_lbl.setStyleSheet("font-size: 14px; font-weight: 800; letter-spacing: 2px; color: #FAFAFA; padding: 6px 8px 16px 8px;")
         sidebar_layout.addWidget(brand_lbl)
 
-        self.btn_nav_dashboard = QPushButton("  Vue d'ensemble")
-        self.btn_nav_dashboard.setProperty("class", "nav-btn")
-        self.btn_nav_dashboard.setProperty("active", "true")
-        
-        self.btn_nav_hardware = QPushButton("  Composants")
-        self.btn_nav_hardware.setProperty("class", "nav-btn")
-        
-        self.btn_nav_diag = QPushButton("  Diagnostic")
-        self.btn_nav_diag.setProperty("class", "nav-btn")
-        
-        self.btn_nav_settings = QPushButton("  Paramètres")
-        self.btn_nav_settings.setProperty("class", "nav-btn")
-
-        sidebar_layout.addWidget(self.btn_nav_dashboard)
-        sidebar_layout.addWidget(self.btn_nav_hardware)
-        sidebar_layout.addWidget(self.btn_nav_diag)
-        sidebar_layout.addWidget(self.btn_nav_settings)
+        for text in ["Vue d'ensemble", "Composants", "Diagnostic", "Paramètres"]:
+            btn = QPushButton(f"  {text}")
+            btn.setProperty("class", "nav-btn")
+            if text == "Vue d'ensemble":
+                btn.setProperty("active", "true")
+            sidebar_layout.addWidget(btn)
+            
         sidebar_layout.addStretch()
 
-        version_lbl = QLabel("v0.4.3 • Dev Build")
+        version_lbl = QLabel("v0.5.0 • Dev Build")
         version_lbl.setStyleSheet("color: #52525B; font-size: 11px; padding: 8px;")
         sidebar_layout.addWidget(version_lbl)
 
         layout.addWidget(sidebar)
 
-        # -----------------------------------------------------------------
-        # 2. ZONE DE CONTENU PRINCIPALE
-        # -----------------------------------------------------------------
+        # CONTENU PRINCIPAL
         content_frame = QFrame()
         content_layout = QVBoxLayout(content_frame)
         content_layout.setContentsMargins(24, 20, 24, 20)
         content_layout.setSpacing(16)
 
-        # En-tête supérieur (Header)
+        # En-tête supérieur
         top_bar = QHBoxLayout()
         header_title = QLabel("Tableau de bord")
         header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #FAFAFA;")
         
         self.status_badge = QLabel("Prêt pour l'analyse")
         self.status_badge.setStyleSheet("color: #71717A; font-size: 12px; font-weight: 500; background: #18181B; padding: 4px 10px; border-radius: 4px; border: 1px solid #27272A;")
+
+        self.btn_export = QPushButton("Exporter en PDF")
+        self.btn_export.setObjectName("btn_pdf")
+        self.btn_export.setEnabled(False)
+        self.btn_export.clicked.connect(self.export_pdf)
 
         self.btn_scan = QPushButton("Lancer le diagnostic")
         self.btn_scan.setObjectName("btn_scan")
@@ -190,10 +134,11 @@ class MainWindow(QMainWindow):
         top_bar.addWidget(header_title)
         top_bar.addStretch()
         top_bar.addWidget(self.status_badge)
+        top_bar.addWidget(self.btn_export)
         top_bar.addWidget(self.btn_scan)
         content_layout.addLayout(top_bar)
 
-        # Barre de progression de chargement (Masquée par défaut)
+        # Barre de chargement
         self.loader_container = QWidget()
         loader_layout = QVBoxLayout(self.loader_container)
         loader_layout.setContentsMargins(0, 0, 0, 0)
@@ -210,11 +155,10 @@ class MainWindow(QMainWindow):
         self.loader_container.setVisible(False)
         content_layout.addWidget(self.loader_container)
 
-        # Grille d'inspection (Panneaux sobres)
+        # Grille
         grid = QGridLayout()
         grid.setSpacing(12)
 
-        # Panel CPU
         self.p_cpu = self.create_data_panel("Processeur")
         self.lbl_cpu_val = QLabel("Non analysé")
         self.lbl_cpu_sub = QLabel("-")
@@ -223,7 +167,6 @@ class MainWindow(QMainWindow):
         self.p_cpu.layout().addWidget(self.lbl_cpu_sub)
         grid.addWidget(self.p_cpu, 0, 0)
 
-        # Panel RAM
         self.p_ram = self.create_data_panel("Mémoire RAM")
         self.lbl_ram_val = QLabel("Non analysé")
         self.bar_ram = QProgressBar()
@@ -234,14 +177,12 @@ class MainWindow(QMainWindow):
         self.p_ram.layout().addWidget(self.lbl_ram_sub)
         grid.addWidget(self.p_ram, 0, 1)
 
-        # Panel GPU
         self.p_gpu = self.create_data_panel("Carte Graphique")
         self.lbl_gpu_val = QLabel("Non analysé")
         self.lbl_gpu_val.setWordWrap(True)
         self.p_gpu.layout().addWidget(self.lbl_gpu_val)
         grid.addWidget(self.p_gpu, 1, 0)
 
-        # Panel Disque
         self.p_disk = self.create_data_panel("Stockage Principal")
         self.lbl_disk_val = QLabel("Non analysé")
         self.bar_disk = QProgressBar()
@@ -254,7 +195,7 @@ class MainWindow(QMainWindow):
 
         content_layout.addLayout(grid)
 
-        # Bilan Diagnostic
+        # Rapport
         p_diag = self.create_data_panel("Rapport de Diagnostic")
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -265,7 +206,7 @@ class MainWindow(QMainWindow):
         self.diag_layout.setContentsMargins(0, 0, 0, 0)
         self.diag_layout.setSpacing(8)
         
-        init_msg = QLabel("Cliquez sur « Lancer le diagnostic » pour démarrer le contrôle système.")
+        init_msg = QLabel("Cliquez sur « Lancer le diagnostic » pour démarrer le contrôle.")
         init_msg.setStyleSheet("color: #52525B; font-size: 12px;")
         self.diag_layout.addWidget(init_msg)
         
@@ -289,11 +230,11 @@ class MainWindow(QMainWindow):
 
     def start_scan(self):
         self.btn_scan.setEnabled(False)
+        self.btn_export.setEnabled(False)
         self.btn_scan.setText("Analyse...")
         self.loader_container.setVisible(True)
         self.scan_progress_bar.setValue(0)
 
-        # Instanciation et lancement du worker thread
         self.worker = DiagnosticWorker()
         self.worker.progress_updated.connect(self.on_scan_progress)
         self.worker.scan_completed.connect(self.on_scan_finished)
@@ -304,11 +245,12 @@ class MainWindow(QMainWindow):
         self.loader_label.setText(text)
 
     def on_scan_finished(self, hw, analysis):
-        # 1. CPU
+        self.last_hw_data = hw
+        self.last_analysis_data = analysis
+        
         self.lbl_cpu_val.setText(hw['cpu']['name'])
         self.lbl_cpu_sub.setText(f"{hw['cpu']['physical_cores']} Cœurs Physiques / {hw['cpu']['logical_cores']} Cœurs Logiques")
 
-        # 2. RAM
         ram_brand = f"{hw['ram']['manufacturer'] or ''} {hw['ram']['part_number'] or ''}".strip()
         self.lbl_ram_val.setText(ram_brand if ram_brand else "Mémoire système")
         self.bar_ram.setValue(int(hw['ram']['percent_used']))
@@ -317,14 +259,12 @@ class MainWindow(QMainWindow):
             ram_sub_text += f" @ {hw['ram']['speed_mhz']} MHz"
         self.lbl_ram_sub.setText(ram_sub_text)
 
-        # 3. GPU
         gpu_str = ""
         for gpu in hw['gpus']:
             vram = f"{gpu['vram_gb']} Go" if gpu['vram_gb'] else "N/A"
             gpu_str += f"<b>{gpu['name']}</b> — <span style='color:#71717A;'>VRAM : {vram} | Pilote : {gpu['driver_version']}</span><br>"
         self.lbl_gpu_val.setText(gpu_str if gpu_str else "Aucun GPU détecté.")
 
-        # 4. DISK
         pdisk_name = hw['physical_disks'][0]['model'] if hw['physical_disks'] else "Disque principal"
         self.lbl_disk_val.setText(pdisk_name)
         if hw['disks']:
@@ -332,14 +272,14 @@ class MainWindow(QMainWindow):
             self.bar_disk.setValue(int(d['percent_used']))
             self.lbl_disk_sub.setText(f"Partition {d['mountpoint']} : {d['free_gb']} Go libres sur {d['total_gb']} Go")
 
-        # 5. DIAGNOSTIC LOG
-        for i in reversed(range(self.diag_layout.count())): 
-            w = self.diag_layout.itemAt(i).widget()
-            if w:
-                w.setParent(None)
+        while self.diag_layout.count():
+            child = self.diag_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
         for report in analysis['reports']:
             row = QFrame()
+            row.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             row.setStyleSheet("background: #09090B; border: 1px solid #27272A; border-radius: 4px; padding: 6px;")
             r_box = QVBoxLayout(row)
             r_box.setContentsMargins(6, 4, 6, 4)
@@ -363,12 +303,24 @@ class MainWindow(QMainWindow):
             r_box.addWidget(desc)
 
             self.diag_layout.addWidget(row)
+            
+        self.diag_layout.addStretch()
 
-        # Status & Reset UI
         status = analysis['overall_status']
         self.status_badge.setText(f"État : {status}")
         self.status_badge.setStyleSheet("color: #FAFAFA; font-size: 12px; font-weight: 600; background: #27272A; padding: 4px 10px; border-radius: 4px;")
 
         self.loader_container.setVisible(False)
         self.btn_scan.setEnabled(True)
-        self.btn_scan.setText("Relancer le diagnostic")
+        self.btn_scan.setText("Relancer")
+        self.btn_export.setEnabled(True)
+
+    def export_pdf(self):
+        if not hasattr(self, 'last_hw_data') or not hasattr(self, 'last_analysis_data'):
+            return
+            
+        try:
+            path = PDFReportGenerator.generate_report(self.last_hw_data, self.last_analysis_data)
+            QMessageBox.information(self, "Export réussi", f"Le rapport PDF a été généré avec succès sur votre Bureau :\n{path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur d'exportation", f"Impossible de générer le PDF.\nErreur : {str(e)}")
