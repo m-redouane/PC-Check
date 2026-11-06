@@ -1,0 +1,19 @@
+CONTRAT DE LICENCE UTILISATEUR FINAL (CLUF) POUR PC-CHECK
+
+Important - à lire attentivement : Ce contrat de licence utilisateur final ("CLUF") est un accord juridique entre vous (personne physique ou morale) et le développeur (Redouane MHEND) pour le logiciel PC-Check ("LOGICIEL").
+
+En installant, copiant ou utilisant le LOGICIEL, vous acceptez d'être lié par les termes de ce CLUF. Si vous n'acceptez pas les termes de ce CLUF, ne l'installez pas et ne l'utilisez pas.
+
+1. CONCESSION DE LICENCE
+Le LOGICIEL est concédé sous licence et non vendu. Redouane MHEND vous accorde le droit d'utiliser une copie du LOGICIEL sur vos ordinateurs personnels ou professionnels à des fins de diagnostic matériel.
+
+2. PROPRIÉTÉ INTELLECTUELLE
+Tous les droits de propriété intellectuelle du LOGICIEL (incluant notamment le code source, les graphismes, le logo et la documentation) sont et restent la propriété exclusive de Redouane MHEND.
+
+3. LIMITATION DE RESPONSABILITÉ
+Le LOGICIEL est fourni "en l'état", sans garantie d'aucune sorte, explicite ou implicite. En aucun cas l'auteur ne pourra être tenu responsable des dommages directs ou indirects (perte de données, instabilité matérielle) résultant de l'utilisation ou de l'incapacité d'utilisation du LOGICIEL.
+
+4. DISTRIBUTION
+La distribution non autorisée, la modification ou la rétro-ingénierie du code source compilé du LOGICIEL sont strictement interdites sans l'accord préalable de l'auteur.
+
+Copyright © 2026 Redouane MHEND. Tous droits réservés.

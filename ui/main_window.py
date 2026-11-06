@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QFrame, QScrollArea, QSizePolicy, QMessageBox, 
                              QStackedWidget, QTreeWidget, QTreeWidgetItem, QHeaderView, QFileDialog)
 from PySide6.QtCore import Qt, QThread, Signal, QRectF, Property, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtGui import QPainter, QColor, QPen, QFont, QFontDatabase, QIcon
+from PySide6.QtGui import QPainter, QColor, QPen, QFont, QFontDatabase, QIcon, QPixmap
 
 from core.hardware import HardwareDetector
 from core.analyzer import DiagnosticEngine
@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
         
         self.sensors_engine = HardwareSensors()
         self.live_timer = QTimer(self)
-        self.live_timer.setInterval(1500) # Légèrement augmenté pour le parcours complet de l'arbre
+        self.live_timer.setInterval(1500)
         self.live_timer.timeout.connect(self.update_live_sensors)
 
         self.setStyleSheet("""
@@ -125,6 +125,7 @@ class MainWindow(QMainWindow):
         """)
 
         self.init_ui()
+        self.populate_components_tree_initial()
 
     def init_ui(self):
         main_widget = QWidget()
@@ -140,17 +141,15 @@ class MainWindow(QMainWindow):
         sidebar_layout.setContentsMargins(12, 16, 12, 16)
         sidebar_layout.setSpacing(4)
 
-        # --- En-tête de la barre latérale (Logo + Texte) ---
         brand_layout = QHBoxLayout()
-        brand_layout.setContentsMargins(8, 6, 8, 16)
+        brand_layout.setContentsMargins(0, 2, 2, 16)
         brand_layout.setSpacing(10)
         
         self.logo_label = QLabel()
         logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png"))
         if os.path.exists(logo_path):
-            from PySide6.QtGui import QPixmap
             pixmap = QPixmap(logo_path)
-            pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation) # Taille ajustée pour la sidebar
+            pixmap = pixmap.scaled(55, 55, Qt.KeepAspectRatio, Qt.SmoothTransformation) # Logo agrandi
             self.logo_label.setPixmap(pixmap)
             
         brand_lbl = QLabel("PC CHECK")
@@ -158,10 +157,9 @@ class MainWindow(QMainWindow):
         
         brand_layout.addWidget(self.logo_label)
         brand_layout.addWidget(brand_lbl)
-        brand_layout.addStretch() # Pousse le tout vers la gauche
+        brand_layout.addStretch()
         
         sidebar_layout.addLayout(brand_layout)
-        # ---------------------------------------------------
 
         self.nav_buttons = {}
         self.nav_items = [("Vue d'ensemble", 0), ("Capteurs Détaillés", 1), ("Diagnostic", 2), ("Paramètres", 3)]
@@ -184,11 +182,9 @@ class MainWindow(QMainWindow):
         content_layout = QVBoxLayout(content_frame)
         content_layout.setContentsMargins(24, 20, 24, 20)
         content_layout.setSpacing(16)
-
         
         top_bar = QHBoxLayout()
         self.header_title = QLabel("Vue d'ensemble")
-
         self.header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #FAFAFA;")
         
         self.status_badge = QLabel("En attente d'analyse")
@@ -334,7 +330,6 @@ class MainWindow(QMainWindow):
         subtitle.setStyleSheet("color: #A1A1AA; font-size: 12px;")
         layout.addWidget(subtitle)
 
-        # Structure du nouvel arbre : Sensor | Value | Max
         self.comp_tree = QTreeWidget()
         self.comp_tree.setColumnCount(3)
         self.comp_tree.setHeaderLabels(["Sensor", "Value", "Max"])
@@ -565,7 +560,7 @@ class MainWindow(QMainWindow):
         return QColor(colors.get(cat_name, "#A1A1AA"))
 
     def populate_components_tree_initial(self):
-        """Construit l'arbre complet avec les catégories pour la première fois."""
+        """Construit l'arbre complet ou affiche un message d'alerte si LHM est vide."""
         try:
             self.comp_tree.clear()
             metrics = self.sensors_engine.get_live_metrics()
@@ -573,27 +568,26 @@ class MainWindow(QMainWindow):
             pc_root = QTreeWidgetItem(self.comp_tree, ["PC-LOCAL", "", ""])
             pc_root.setForeground(0, QColor("#FAFAFA"))
 
-            for comp in metrics.get("components", []):
-                # Ajout du composant (ex: AMD Ryzen 7 9700X)
-                comp_item = QTreeWidgetItem(pc_root, [comp["name"], "", ""])
-                comp_item.setForeground(0, QColor("#F8FAFC"))
-                
-                # On trie les catégories pour avoir un affichage propre
-                for cat_name, sensors in sorted(comp["sensor_categories"].items()):
-                    cat_item = QTreeWidgetItem(comp_item, [cat_name, "", ""])
-                    cat_item.setForeground(0, self.get_color_for_category(cat_name))
+            components = metrics.get("components", [])
+            
+            if not components:
+                err_item = QTreeWidgetItem(pc_root, ["⚠️ Moteur LHM non initialisé (vérifiez la DLL)", "", ""])
+                err_item.setForeground(0, QColor("#EF4444"))
+            else:
+                for comp in components:
+                    comp_item = QTreeWidgetItem(pc_root, [comp["name"], "", ""])
+                    comp_item.setForeground(0, QColor("#F8FAFC"))
                     
-                    for sensor in sensors:
-                        # Ajout du capteur avec sa valeur initiale (Max n'est pas encore géré, on met "-")
-                        sensor_item = QTreeWidgetItem(cat_item, [sensor["name"], sensor["value"], sensor["value"]])
-                        sensor_item.setForeground(0, QColor("#94A3B8"))
-                        # Stocker la valeur max initiale
-                        sensor_item.setData(2, Qt.UserRole, sensor["raw_value"])
+                    for cat_name, sensors in sorted(comp["sensor_categories"].items()):
+                        cat_item = QTreeWidgetItem(comp_item, [cat_name, "", ""])
+                        cat_item.setForeground(0, self.get_color_for_category(cat_name))
+                        
+                        for sensor in sensors:
+                            sensor_item = QTreeWidgetItem(cat_item, [sensor["name"], sensor["value"], sensor["value"]])
+                            sensor_item.setForeground(0, QColor("#94A3B8"))
+                            sensor_item.setData(2, Qt.UserRole, sensor["raw_value"])
             
-            # Déplier le nœud principal
             self.comp_tree.expandItem(pc_root)
-            
-            # Déplier les composants
             for i in range(pc_root.childCount()):
                 self.comp_tree.expandItem(pc_root.child(i))
 
@@ -601,7 +595,6 @@ class MainWindow(QMainWindow):
             print(f"Erreur remplissage arbre initial : {e}")
 
     def update_live_sensors(self):
-        """Met à jour les valeurs de l'arbre existant sans le reconstruire."""
         try:
             metrics = self.sensors_engine.get_live_metrics()
             root = self.comp_tree.invisibleRootItem()
@@ -611,12 +604,10 @@ class MainWindow(QMainWindow):
                 
             pc_root = root.child(0)
             
-            # Parcours de l'arbre existant pour mettre à jour les valeurs
             for c_idx in range(pc_root.childCount()):
                 comp_item = pc_root.child(c_idx)
                 comp_name = comp_item.text(0)
                 
-                # Chercher le composant correspondant dans les nouvelles métriques
                 new_comp_data = next((c for c in metrics.get("components", []) if c["name"] == comp_name), None)
                 if not new_comp_data: continue
                 
@@ -630,19 +621,16 @@ class MainWindow(QMainWindow):
                         sensor_item = cat_item.child(s_idx)
                         sensor_name = sensor_item.text(0)
                         
-                        # Chercher le capteur correspondant
                         new_s_data = next((s for s in new_sensors if s["name"] == sensor_name), None)
                         if new_s_data:
                             sensor_item.setText(1, new_s_data["value"])
                             
-                            # Gestion de la valeur Max
                             current_max_raw = sensor_item.data(2, Qt.UserRole)
                             if current_max_raw is None or new_s_data["raw_value"] > current_max_raw:
                                 sensor_item.setData(2, Qt.UserRole, new_s_data["raw_value"])
                                 sensor_item.setText(2, new_s_data["value"])
-
-        except Exception as e:
-            pass # print(f"Erreur update arbre : {e}")
+        except Exception:
+            pass
 
     def populate_diagnostic_views(self, analysis):
         while self.diag_layout.count():
