@@ -32,7 +32,7 @@ class CircularGauge(QWidget):
         margin = 6
         rect = QRectF(margin, margin, self.width() - margin*2, self.height() - margin*2)
         
-        pen_bg = QPen(QColor("#27272A"), 8)
+        pen_bg = QPen(QColor("#334155"), 8)
         pen_bg.setCapStyle(Qt.RoundCap)
         painter.setPen(pen_bg)
         painter.drawArc(rect, 0, 360 * 16)
@@ -92,29 +92,29 @@ class MainWindow(QMainWindow):
         self.live_timer.timeout.connect(self.update_live_sensors)
 
         self.setStyleSheet("""
-            QMainWindow { background-color: #09090B; }
+            QMainWindow { background-color: #0A0D14; }
             QLabel { color: #FAFAFA; font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; }
-            QFrame#sidebar { background-color: #111113; border-right: 1px solid #27272A; }
+            QFrame#sidebar { background-color: #11151C; border-right: 1px solid #334155; }
             QPushButton.nav-btn { background-color: transparent; color: #A1A1AA; font-size: 13px; font-weight: 500; text-align: left; padding: 10px 14px; border-radius: 6px; border: none; }
-            QPushButton.nav-btn:hover { background-color: #18181B; color: #FAFAFA; }
-            QPushButton.nav-btn[active="true"] { background-color: #27272A; color: #FAFAFA; font-weight: 600; }
-            QFrame.panel { background-color: #141417; border-radius: 8px; border: 1px solid #27272A; }
+            QPushButton.nav-btn:hover { background-color: #1E293B; color: #FAFAFA; }
+            QPushButton.nav-btn[active="true"] { background-color: #334155; color: #FAFAFA; font-weight: 600; }
+            QFrame.panel { background-color: #151A23; border-radius: 8px; border: 1px solid #334155; }
             
-            QPushButton#btn_scan { background-color: #FAFAFA; color: #09090B; font-weight: 600; font-size: 13px; padding: 8px 18px; border-radius: 6px; border: none; }
-            QPushButton#btn_scan:hover { background-color: #E4E4E7; }
-            QPushButton#btn_scan:disabled { background-color: #27272A; color: #71717A; }
-            QPushButton#btn_pdf { background-color: #27272A; color: #FAFAFA; font-weight: 600; font-size: 13px; padding: 8px 18px; border-radius: 6px; border: 1px solid #3F3F46; }
+            QPushButton#btn_scan { background-color: #F97316; color: #FFFFFF; font-weight: 600; font-size: 13px; padding: 8px 18px; border-radius: 6px; border: none; }
+            QPushButton#btn_scan:hover { background-color: #EA580C; }
+            QPushButton#btn_scan:disabled { background-color: #334155; color: #71717A; }
+            QPushButton#btn_pdf { background-color: #334155; color: #FAFAFA; font-weight: 600; font-size: 13px; padding: 8px 18px; border-radius: 6px; border: 1px solid #3F3F46; }
             QPushButton#btn_pdf:hover { background-color: #3F3F46; }
-            QPushButton#btn_pdf:disabled { background-color: #18181B; color: #52525B; border: 1px solid #27272A; }
+            QPushButton#btn_pdf:disabled { background-color: #1E293B; color: #52525B; border: 1px solid #334155; }
             
-            QPushButton.filter-btn { background-color: #18181B; color: #A1A1AA; border: 1px solid #27272A; border-radius: 4px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
-            QPushButton.filter-btn:hover { background-color: #27272A; color: #FAFAFA; }
-            QPushButton.filter-btn[active="true"] { background-color: #3B82F6; color: #FAFAFA; border: 1px solid #3B82F6; }
+            QPushButton.filter-btn { background-color: #1E293B; color: #A1A1AA; border: 1px solid #334155; border-radius: 4px; padding: 6px 12px; font-size: 12px; font-weight: 600; }
+            QPushButton.filter-btn:hover { background-color: #334155; color: #FAFAFA; }
+            QPushButton.filter-btn[active="true"] { background-color: #0EA5E9; color: #FAFAFA; border: 1px solid #0EA5E9; }
 
-            QTreeWidget { background-color: #141417; color: #FAFAFA; border: 1px solid #27272A; border-radius: 6px; outline: 0; gridline-color: #27272A; }
+            QTreeWidget { background-color: #151A23; color: #FAFAFA; border: 1px solid #334155; border-radius: 6px; outline: 0; gridline-color: #334155; }
             QTreeWidget::item { padding: 4px; border-bottom: 1px solid #1c1c21; }
-            QTreeWidget::item:selected { background-color: #27272A; }
-            QHeaderView::section { background-color: #18181B; color: #A1A1AA; padding: 8px; border: none; border-right: 1px solid #27272A; font-weight: 600; font-size: 12px; }
+            QTreeWidget::item:selected { background-color: #334155; }
+            QHeaderView::section { background-color: #1E293B; color: #A1A1AA; padding: 8px; border: none; border-right: 1px solid #334155; font-weight: 600; font-size: 12px; }
         """)
 
         self.init_ui()
@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
         self.header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #FAFAFA;")
         
         self.status_badge = QLabel("En attente d'analyse")
-        self.status_badge.setStyleSheet("color: #A1A1AA; font-size: 12px; font-weight: 500; background: #18181B; padding: 4px 10px; border-radius: 4px; border: 1px solid #27272A;")
+        self.status_badge.setStyleSheet("color: #A1A1AA; font-size: 12px; font-weight: 500; background: #1E293B; padding: 4px 10px; border-radius: 4px; border: 1px solid #334155;")
 
         self.btn_export = QPushButton("Exporter en PDF")
         self.btn_export.setObjectName("btn_pdf")
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
         content_layout.addLayout(top_bar)
 
         self.loader_label = QLabel("")
-        self.loader_label.setStyleSheet("color: #22D3EE; font-size: 11px; font-weight: 600;")
+        self.loader_label.setStyleSheet("color: #0EA5E9; font-size: 11px; font-weight: 600;")
         content_layout.addWidget(self.loader_label)
 
         self.stacked_widget = QStackedWidget()
@@ -219,7 +219,7 @@ class MainWindow(QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(12)
 
-        self.p_cpu = self.create_data_panel("Processeur", "#38BDF8")
+        self.p_cpu = self.create_data_panel("Processeur", "#0EA5E9")
         self.lbl_cpu_val = QLabel("En attente")
         self.lbl_cpu_val.setStyleSheet("font-size: 13px; font-weight: 600;")
         self.lbl_cpu_sub = QLabel("-")
@@ -229,7 +229,7 @@ class MainWindow(QMainWindow):
         self.p_cpu.layout().addStretch()
         grid.addWidget(self.p_cpu, 0, 0)
 
-        self.p_ram = self.create_data_panel("Mémoire RAM", "#22D3EE")
+        self.p_ram = self.create_data_panel("Mémoire RAM", "#38BDF8")
         ram_h_layout = QHBoxLayout()
         ram_text_layout = QVBoxLayout()
         self.lbl_ram_val = QLabel("En attente")
@@ -239,14 +239,14 @@ class MainWindow(QMainWindow):
         ram_text_layout.addWidget(self.lbl_ram_val)
         ram_text_layout.addWidget(self.lbl_ram_sub)
         ram_text_layout.addStretch()
-        self.gauge_ram = CircularGauge(color_hex="#22D3EE", size=70)
+        self.gauge_ram = CircularGauge(color_hex="#38BDF8", size=70)
         ram_h_layout.addLayout(ram_text_layout)
         ram_h_layout.addStretch()
         ram_h_layout.addWidget(self.gauge_ram)
         self.p_ram.layout().addLayout(ram_h_layout)
         grid.addWidget(self.p_ram, 0, 1)
 
-        self.p_gpu = self.create_data_panel("Carte Graphique", "#F43F5E")
+        self.p_gpu = self.create_data_panel("Carte Graphique", "#F97316")
         self.gpu_container_layout = QVBoxLayout()
         self.gpu_container_layout.setContentsMargins(0, 0, 0, 0)
         self.gpu_container_layout.setSpacing(6)
@@ -257,7 +257,7 @@ class MainWindow(QMainWindow):
         self.p_gpu.layout().addStretch()
         grid.addWidget(self.p_gpu, 1, 0)
 
-        self.p_disk = self.create_data_panel("Stockage Principal", "#A855F7")
+        self.p_disk = self.create_data_panel("Stockage Principal", "#F59E0B")
         disk_h_layout = QHBoxLayout()
         disk_text_layout = QVBoxLayout()
         self.lbl_disk_val = QLabel("En attente")
@@ -267,7 +267,7 @@ class MainWindow(QMainWindow):
         disk_text_layout.addWidget(self.lbl_disk_val)
         disk_text_layout.addWidget(self.lbl_disk_sub)
         disk_text_layout.addStretch()
-        self.gauge_disk = CircularGauge(color_hex="#A855F7", size=70)
+        self.gauge_disk = CircularGauge(color_hex="#F59E0B", size=70)
         disk_h_layout.addLayout(disk_text_layout)
         disk_h_layout.addStretch()
         disk_h_layout.addWidget(self.gauge_disk)
@@ -375,7 +375,7 @@ class MainWindow(QMainWindow):
         self.lbl_pdf_path.setStyleSheet("color: #A1A1AA; font-size: 12px;")
         
         btn_change_dir = QPushButton("Modifier le dossier...")
-        btn_change_dir.setStyleSheet("background-color: #27272A; color: #FAFAFA; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 4px; border: 1px solid #3F3F46;")
+        btn_change_dir.setStyleSheet("background-color: #334155; color: #FAFAFA; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 4px; border: 1px solid #3F3F46;")
         btn_change_dir.clicked.connect(self.change_export_dir)
 
         pdf_layout.addWidget(lbl_pdf_title)
@@ -427,7 +427,7 @@ class MainWindow(QMainWindow):
         self.btn_export.setEnabled(False)
         self.btn_scan.setText("Analyse en cours...")
         self.status_badge.setText("Analyse...")
-        self.status_badge.setStyleSheet("color: #22D3EE; font-size: 12px; font-weight: 600; background: #18181B; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid #22D3EE;")
+        self.status_badge.setStyleSheet("color: #0EA5E9; font-size: 12px; font-weight: 600; background: #1E293B; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid #0EA5E9;")
         
         self.lbl_cpu_val.setText("Analyse en cours...")
         self.lbl_ram_val.setText("Analyse en cours...")
@@ -510,9 +510,9 @@ class MainWindow(QMainWindow):
             self.live_timer.start()
 
             status = analysis.get('overall_status', 'INCONNU')
-            border_col = "#059669" if status == "EXCELLENT" else "#D97706" if status == "À SURVEILLER" else "#DC2626"
+            border_col = "#F97316" if status == "EXCELLENT" else "#F59E0B" if status == "À SURVEILLER" else "#EF4444"
             self.status_badge.setText(f"État : {status}")
-            self.status_badge.setStyleSheet(f"color: #FAFAFA; font-size: 12px; font-weight: 600; background: #27272A; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid {border_col};")
+            self.status_badge.setStyleSheet(f"color: #FAFAFA; font-size: 12px; font-weight: 600; background: #334155; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid {border_col};")
 
         except Exception as e:
             print(f"Erreur UI critique : {e}")
@@ -548,7 +548,7 @@ class MainWindow(QMainWindow):
             for comp in metrics.get("components", []):
                 # Ajout du composant (ex: AMD Ryzen 7 9700X)
                 comp_item = QTreeWidgetItem(pc_root, [comp["name"], "", ""])
-                comp_item.setForeground(0, QColor("#E4E4E7"))
+                comp_item.setForeground(0, QColor("#F8FAFC"))
                 
                 # On trie les catégories pour avoir un affichage propre
                 for cat_name, sensors in sorted(comp["sensor_categories"].items()):
@@ -558,7 +558,7 @@ class MainWindow(QMainWindow):
                     for sensor in sensors:
                         # Ajout du capteur avec sa valeur initiale (Max n'est pas encore géré, on met "-")
                         sensor_item = QTreeWidgetItem(cat_item, [sensor["name"], sensor["value"], sensor["value"]])
-                        sensor_item.setForeground(0, QColor("#A1A1AA"))
+                        sensor_item.setForeground(0, QColor("#94A3B8"))
                         # Stocker la valeur max initiale
                         sensor_item.setData(2, Qt.UserRole, sensor["raw_value"])
             
@@ -624,7 +624,7 @@ class MainWindow(QMainWindow):
         for report in analysis['reports']:
             row = QFrame()
             row.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-            row.setStyleSheet("background: #09090B; border: 1px solid #27272A; border-radius: 6px; padding: 6px;")
+            row.setStyleSheet("background: #0A0D14; border: 1px solid #334155; border-radius: 6px; padding: 6px;")
             r_box = QVBoxLayout(row)
             r_box.setContentsMargins(8, 6, 8, 6)
 
@@ -672,7 +672,7 @@ class MainWindow(QMainWindow):
             for report in filtered:
                 row = QFrame()
                 row.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-                row.setStyleSheet("background: #141417; border: 1px solid #27272A; border-radius: 6px; padding: 8px;")
+                row.setStyleSheet("background: #151A23; border: 1px solid #334155; border-radius: 6px; padding: 8px;")
                 r_box = QVBoxLayout(row)
                 r_box.setContentsMargins(10, 8, 10, 8)
 
