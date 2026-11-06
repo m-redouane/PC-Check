@@ -159,8 +159,24 @@ class MainWindow(QMainWindow):
         content_layout.setContentsMargins(24, 20, 24, 20)
         content_layout.setSpacing(16)
 
+        
         top_bar = QHBoxLayout()
+        
+        # --- AJOUT DU LOGO DANS L'UI ---
+        self.logo_label = QLabel()
+        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png"))
+        if os.path.exists(logo_path):
+            from PySide6.QtGui import QPixmap
+            pixmap = QPixmap(logo_path)
+            # Redimensionner l'image pour qu'elle s'intègre bien (ex: 32x32 pixels)
+            pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.logo_label.setPixmap(pixmap)
+        
+        top_bar.addWidget(self.logo_label)
+        # -------------------------------
+        
         self.header_title = QLabel("Vue d'ensemble")
+
         self.header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #FAFAFA;")
         
         self.status_badge = QLabel("En attente d'analyse")
