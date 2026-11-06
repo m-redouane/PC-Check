@@ -67,7 +67,8 @@ class HardwareSensors:
                             elif s_type == "Load": val_str += " %"
                             elif s_type == "Voltage": val_str += " V"
                             elif s_type == "Power": val_str += " W"
-                            elif s_type == "Clock": val_str += " MHz"
+                            elif s_type == "Clock":
+                                val_str = f"{s_val * 1e-3:.2f} GHz"
                             
                             # Création de la catégorie si elle n'existe pas
                             cat_name = s_type + "s" # On ajoute un 's' (Temperatures, Voltages...) pour coller au style LHM

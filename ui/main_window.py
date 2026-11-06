@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout,
                              QFrame, QScrollArea, QSizePolicy, QMessageBox, 
                              QStackedWidget, QTreeWidget, QTreeWidgetItem, QHeaderView, QFileDialog)
 from PySide6.QtCore import Qt, QThread, Signal, QRectF, Property, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtGui import QPainter, QColor, QPen, QFont, QIcon
+from PySide6.QtGui import QPainter, QColor, QPen, QFont, QFontDatabase, QIcon
 
 from core.hardware import HardwareDetector
 from core.analyzer import DiagnosticEngine
@@ -85,6 +85,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("PC Check")
         self.resize(1150, 720)
         self.setMinimumSize(950, 620)
+
+        font_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "Minicomputer.otf"))
+        font_id = QFontDatabase.addApplicationFont(font_path)
+        font_families = QFontDatabase.applicationFontFamilies(font_id) if font_id != -1 else []
+        if not font_families:
+            raise RuntimeError(f"Unable to load application font: {font_path}")
+        self.brand_font_family = font_families[0]
         
         self.sensors_engine = HardwareSensors()
         self.live_timer = QTimer(self)
@@ -133,9 +140,28 @@ class MainWindow(QMainWindow):
         sidebar_layout.setContentsMargins(12, 16, 12, 16)
         sidebar_layout.setSpacing(4)
 
+        # --- En-tête de la barre latérale (Logo + Texte) ---
+        brand_layout = QHBoxLayout()
+        brand_layout.setContentsMargins(8, 6, 8, 16)
+        brand_layout.setSpacing(10)
+        
+        self.logo_label = QLabel()
+        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png"))
+        if os.path.exists(logo_path):
+            from PySide6.QtGui import QPixmap
+            pixmap = QPixmap(logo_path)
+            pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation) # Taille ajustée pour la sidebar
+            self.logo_label.setPixmap(pixmap)
+            
         brand_lbl = QLabel("PC CHECK")
-        brand_lbl.setStyleSheet("font-size: 15px; font-weight: 800; letter-spacing: 2px; color: #FAFAFA; padding: 6px 8px 16px 8px;")
-        sidebar_layout.addWidget(brand_lbl)
+        brand_lbl.setStyleSheet(f"font-family: '{self.brand_font_family}'; font-size: 18px; font-weight: 900; font-style: italic; letter-spacing: 4px; color: #FAFAFA;")
+        
+        brand_layout.addWidget(self.logo_label)
+        brand_layout.addWidget(brand_lbl)
+        brand_layout.addStretch() # Pousse le tout vers la gauche
+        
+        sidebar_layout.addLayout(brand_layout)
+        # ---------------------------------------------------
 
         self.nav_buttons = {}
         self.nav_items = [("Vue d'ensemble", 0), ("Capteurs Détaillés", 1), ("Diagnostic", 2), ("Paramètres", 3)]
@@ -161,20 +187,6 @@ class MainWindow(QMainWindow):
 
         
         top_bar = QHBoxLayout()
-        
-        # --- AJOUT DU LOGO DANS L'UI ---
-        self.logo_label = QLabel()
-        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png"))
-        if os.path.exists(logo_path):
-            from PySide6.QtGui import QPixmap
-            pixmap = QPixmap(logo_path)
-            # Redimensionner l'image pour qu'elle s'intègre bien (ex: 32x32 pixels)
-            pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.logo_label.setPixmap(pixmap)
-        
-        top_bar.addWidget(self.logo_label)
-        # -------------------------------
-        
         self.header_title = QLabel("Vue d'ensemble")
 
         self.header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #FAFAFA;")
