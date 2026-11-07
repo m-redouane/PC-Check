@@ -8,15 +8,20 @@ https://www.pc-check.fr
 
 ## Aperçu de l'application
 
-| Vue d'ensemble | Diagnostic intelligent |
-| :---: | :---: |
-| ![Vue d'ensemble](assets/dashboard.png) | ![Diagnostic](assets/diagnostic.png) |
-| *Tableau de bord principal et état du système* | *Centre de diagnostic et alertes ciblées* |
+| Vue d'ensemble |
+| :---: |
+| ![Vue d'ensemble](assets/dashboard.png) |
+| *Tableau de bord principal et état du système* |
 
 | Capteurs Détaillés (LHM) |
 | :---: |
 | ![Capteurs Détaillés](assets/sensors.png) |
-| *Explorateur hiérarchique des sondes et composants* |
+| *Explorateur hiérarchique des sondes et composants* ||
+
+| Diagnostic intelligent |
+| :---: |
+| ![Diagnostic](assets/diagnostic.png) |
+| *Centre de diagnostic et alertes ciblées*  |
 
 ## Fonctionnalités
 
