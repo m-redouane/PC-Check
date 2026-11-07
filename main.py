@@ -1,6 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import QTranslator
 from ui.main_window import MainWindow
 import os
 
@@ -15,6 +16,15 @@ def resource_path(relative_path):
 def main():
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(resource_path("assets/logo.ico")))
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
+    translator = QTranslator()
+# On charge le fichier compilé généré par Qt Linguist
+    if translator.load("assets/en_US.qm"): 
+        app.installTranslator(translator)
+
+    # Le reste de ton application...
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

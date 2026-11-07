@@ -54,13 +54,13 @@ class DiagnosticWorker(QThread):
     scan_completed = Signal(dict, dict)
 
     def run(self):
-        self.progress_updated.emit(20, "Inspection du processeur et de la mémoire...")
+        self.progress_updated.emit(20, self.tr("Inspection du processeur et de la mémoire..."))
         os_info = HardwareDetector.get_os_info()
         cpu = HardwareDetector.get_cpu_info()
         time.sleep(0.2)
         ram = HardwareDetector.get_ram_info()
         time.sleep(0.2)
-        self.progress_updated.emit(60, "Détection des cartes graphiques (GPU)...")
+        self.progress_updated.emit(60, self.tr("Détection des cartes graphiques (GPU)..."))
         gpus = HardwareDetector.get_gpu_info()
         time.sleep(0.2)
         disks = HardwareDetector.get_disks_info()
@@ -72,18 +72,18 @@ class DiagnosticWorker(QThread):
             "gpus": gpus, "disks": disks, "physical_disks": physical_disks
         }
         
-        self.progress_updated.emit(90, "Génération du bilan de santé...")
+        self.progress_updated.emit(90, self.tr("Génération du bilan de santé..."))
         analysis = DiagnosticEngine.run_full_diagnostic(hw)
         time.sleep(0.1)
         
-        self.progress_updated.emit(100, "Analyse terminée.")
+        self.progress_updated.emit(100, self.tr("Analyse terminée."))
         self.scan_completed.emit(hw, analysis)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("PC Check")
+        self.setWindowTitle(self.tr("PC Check"))
         self.resize(1150, 720)
         self.setMinimumSize(950, 620)
 
@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
         logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png"))
         if os.path.exists(logo_path):
             pixmap = QPixmap(logo_path)
-            pixmap = pixmap.scaled(55, 55, Qt.KeepAspectRatio, Qt.SmoothTransformation) # Logo agrandi
+            pixmap = pixmap.scaled(55, 55, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.logo_label.setPixmap(pixmap)
             
         brand_lbl = QLabel("PC CHECK")
@@ -163,7 +163,13 @@ class MainWindow(QMainWindow):
         sidebar_layout.addLayout(brand_layout)
 
         self.nav_buttons = {}
-        self.nav_items = [("Vue d'ensemble", 0), ("Capteurs Détaillés", 1), ("Diagnostic", 2), ("Paramètres", 3)]
+        # Traduction des éléments de navigation
+        self.nav_items = [
+            (self.tr("Vue d'ensemble"), 0), 
+            (self.tr("Capteurs Détaillés"), 1), 
+            (self.tr("Diagnostic"), 2), 
+            (self.tr("Paramètres"), 3)
+        ]
 
         for text, index in self.nav_items:
             btn = QPushButton(f"  {text}")
@@ -174,7 +180,7 @@ class MainWindow(QMainWindow):
             self.nav_buttons[index] = btn
             
         sidebar_layout.addStretch()
-        version_lbl = QLabel("v1.0.6 • LHM Tree View")
+        version_lbl = QLabel(self.tr("v1.0.6 • LHM Tree View"))
         version_lbl.setStyleSheet("color: #52525B; font-size: 11px; padding: 8px;")
         sidebar_layout.addWidget(version_lbl)
         layout.addWidget(sidebar)
@@ -185,18 +191,18 @@ class MainWindow(QMainWindow):
         content_layout.setSpacing(16)
         
         top_bar = QHBoxLayout()
-        self.header_title = QLabel("Vue d'ensemble")
+        self.header_title = QLabel(self.tr("Vue d'ensemble"))
         self.header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #FAFAFA;")
         
-        self.status_badge = QLabel("En attente d'analyse")
+        self.status_badge = QLabel(self.tr("En attente d'analyse"))
         self.status_badge.setStyleSheet("color: #A1A1AA; font-size: 12px; font-weight: 500; background: #1E293B; padding: 4px 10px; border-radius: 4px; border: 1px solid #334155;")
 
-        self.btn_export = QPushButton("Exporter en PDF")
+        self.btn_export = QPushButton(self.tr("Exporter en PDF"))
         self.btn_export.setObjectName("btn_pdf")
         self.btn_export.setEnabled(False)
         self.btn_export.clicked.connect(self.export_pdf)
 
-        self.btn_scan = QPushButton("Lancer l'analyse")
+        self.btn_scan = QPushButton(self.tr("Lancer l'analyse"))
         self.btn_scan.setObjectName("btn_scan")
         self.btn_scan.clicked.connect(self.start_scan)
 
@@ -244,8 +250,8 @@ class MainWindow(QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(12)
 
-        self.p_cpu = self.create_data_panel("Processeur", "#0EA5E9")
-        self.lbl_cpu_val = QLabel("En attente")
+        self.p_cpu = self.create_data_panel(self.tr("Processeur"), "#0EA5E9")
+        self.lbl_cpu_val = QLabel(self.tr("En attente"))
         self.lbl_cpu_val.setStyleSheet("font-size: 13px; font-weight: 600;")
         self.lbl_cpu_sub = QLabel("-")
         self.lbl_cpu_sub.setStyleSheet("color: #A1A1AA; font-size: 12px;")
@@ -254,10 +260,10 @@ class MainWindow(QMainWindow):
         self.p_cpu.layout().addStretch()
         grid.addWidget(self.p_cpu, 0, 0)
 
-        self.p_ram = self.create_data_panel("Mémoire RAM", "#38BDF8")
+        self.p_ram = self.create_data_panel(self.tr("Mémoire RAM"), "#38BDF8")
         ram_h_layout = QHBoxLayout()
         ram_text_layout = QVBoxLayout()
-        self.lbl_ram_val = QLabel("En attente")
+        self.lbl_ram_val = QLabel(self.tr("En attente"))
         self.lbl_ram_val.setStyleSheet("font-size: 13px; font-weight: 600;")
         self.lbl_ram_sub = QLabel("-")
         self.lbl_ram_sub.setStyleSheet("color: #A1A1AA; font-size: 12px;")
@@ -271,21 +277,21 @@ class MainWindow(QMainWindow):
         self.p_ram.layout().addLayout(ram_h_layout)
         grid.addWidget(self.p_ram, 0, 1)
 
-        self.p_gpu = self.create_data_panel("Carte Graphique", "#F97316")
+        self.p_gpu = self.create_data_panel(self.tr("Carte Graphique"), "#F97316")
         self.gpu_container_layout = QVBoxLayout()
         self.gpu_container_layout.setContentsMargins(0, 0, 0, 0)
         self.gpu_container_layout.setSpacing(6)
-        init_gpu_lbl = QLabel("En attente")
+        init_gpu_lbl = QLabel(self.tr("En attente"))
         init_gpu_lbl.setStyleSheet("color: #A1A1AA; font-size: 12px;")
         self.gpu_container_layout.addWidget(init_gpu_lbl)
         self.p_gpu.layout().addLayout(self.gpu_container_layout)
         self.p_gpu.layout().addStretch()
         grid.addWidget(self.p_gpu, 1, 0)
 
-        self.p_disk = self.create_data_panel("Stockage Principal", "#F59E0B")
+        self.p_disk = self.create_data_panel(self.tr("Stockage Principal"), "#F59E0B")
         disk_h_layout = QHBoxLayout()
         disk_text_layout = QVBoxLayout()
-        self.lbl_disk_val = QLabel("En attente")
+        self.lbl_disk_val = QLabel(self.tr("En attente"))
         self.lbl_disk_val.setStyleSheet("font-size: 13px; font-weight: 600;")
         self.lbl_disk_sub = QLabel("-")
         self.lbl_disk_sub.setStyleSheet("color: #A1A1AA; font-size: 12px;")
@@ -301,7 +307,7 @@ class MainWindow(QMainWindow):
 
         layout.addLayout(grid)
 
-        p_diag = self.create_data_panel("Bilan Rapide", "#FACC15")
+        p_diag = self.create_data_panel(self.tr("Bilan Rapide"), "#FACC15")
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
@@ -311,7 +317,7 @@ class MainWindow(QMainWindow):
         self.diag_layout.setContentsMargins(0, 0, 0, 0)
         self.diag_layout.setSpacing(8)
         
-        init_msg = QLabel("Cliquez sur le bouton pour démarrer l'analyse.")
+        init_msg = QLabel(self.tr("Cliquez sur le bouton pour démarrer l'analyse."))
         init_msg.setStyleSheet("color: #52525B; font-size: 12px;")
         self.diag_layout.addWidget(init_msg)
         
@@ -327,13 +333,13 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(16)
 
-        subtitle = QLabel("Explorateur Matériel LHM - Affichage Hiérarchique Complet des Capteurs")
+        subtitle = QLabel(self.tr("Explorateur Matériel LHM - Affichage Hiérarchique Complet des Capteurs"))
         subtitle.setStyleSheet("color: #A1A1AA; font-size: 12px;")
         layout.addWidget(subtitle)
 
         self.comp_tree = QTreeWidget()
         self.comp_tree.setColumnCount(3)
-        self.comp_tree.setHeaderLabels(["Sensor", "Value", "Max"])
+        self.comp_tree.setHeaderLabels([self.tr("Capteur"), self.tr("Valeur"), self.tr("Max")])
         
         header = self.comp_tree.header()
         header.setSectionResizeMode(0, QHeaderView.Interactive)
@@ -353,10 +359,10 @@ class MainWindow(QMainWindow):
 
         filter_layout = QHBoxLayout()
         self.filter_buttons = {}
-        for f_name in ["Tous", "CRITICAL", "WARNING", "INFO"]:
+        for f_name in [self.tr("Tous"), "CRITICAL", "WARNING", "INFO"]:
             btn = QPushButton(f_name)
             btn.setProperty("class", "filter-btn")
-            if f_name == "Tous": btn.setProperty("active", "true")
+            if f_name == self.tr("Tous"): btn.setProperty("active", "true")
             btn.clicked.connect(lambda checked=False, name=f_name: self.filter_diagnostic(name))
             filter_layout.addWidget(btn)
             self.filter_buttons[f_name] = btn
@@ -372,7 +378,7 @@ class MainWindow(QMainWindow):
         self.full_diag_layout.setContentsMargins(0, 0, 0, 0)
         self.full_diag_layout.setSpacing(8)
         
-        init_lbl = QLabel("Aucune donnée. Lancez une analyse.")
+        init_lbl = QLabel(self.tr("Aucune donnée. Lancez une analyse."))
         init_lbl.setStyleSheet("color: #52525B; font-size: 12px;")
         self.full_diag_layout.addWidget(init_lbl)
         
@@ -392,13 +398,14 @@ class MainWindow(QMainWindow):
         pdf_layout = QVBoxLayout(panel_pdf)
         pdf_layout.setContentsMargins(16, 16, 16, 16)
         
-        lbl_pdf_title = QLabel("Dossier d'enregistrement des rapports PDF")
+        lbl_pdf_title = QLabel(self.tr("Dossier d'enregistrement des rapports PDF"))
         lbl_pdf_title.setStyleSheet("font-size: 13px; font-weight: 600; color: #FAFAFA;")
         
-        self.lbl_pdf_path = QLabel(f"Actuel : Bureau ({os.path.join(os.environ.get('USERPROFILE', ''), 'Desktop')})")
+        desk_path = os.path.join(os.environ.get('USERPROFILE', ''), 'Desktop')
+        self.lbl_pdf_path = QLabel(self.tr("Actuel : Bureau ({})").format(desk_path))
         self.lbl_pdf_path.setStyleSheet("color: #A1A1AA; font-size: 12px;")
         
-        btn_change_dir = QPushButton("Modifier le dossier...")
+        btn_change_dir = QPushButton(self.tr("Modifier le dossier..."))
         btn_change_dir.setStyleSheet("background-color: #334155; color: #FAFAFA; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 4px; border: 1px solid #3F3F46;")
         btn_change_dir.clicked.connect(self.change_export_dir)
 
@@ -412,7 +419,7 @@ class MainWindow(QMainWindow):
         box_layout = QVBoxLayout(info_box)
         box_layout.setContentsMargins(16, 16, 16, 16)
         
-        lbl_info = QLabel("<b>PC Check — Édition Professionnelle</b><br>Logiciel de diagnostic matériel haute performance 100% local.<br><br>• Version : 1.0.6 (LHM Tree View)<br>• Concepteur : Redouane MHEND")
+        lbl_info = QLabel(self.tr("<b>PC Check — Édition Professionnelle</b><br>Logiciel de diagnostic matériel haute performance 100% local.<br><br>• Version : 1.0.6 (LHM Tree View)<br>• Concepteur : Redouane MHEND"))
         lbl_info.setStyleSheet("color: #D4D4D8; font-size: 13px; line-height: 1.5;")
         box_layout.addWidget(lbl_info)
         
@@ -422,10 +429,10 @@ class MainWindow(QMainWindow):
         return page
 
     def change_export_dir(self):
-        dir_path = QFileDialog.getExistingDirectory(self, "Sélectionner le dossier d'exportation")
+        dir_path = QFileDialog.getExistingDirectory(self, self.tr("Sélectionner le dossier d'exportation"))
         if dir_path:
             self.custom_export_path = dir_path
-            self.lbl_pdf_path.setText(f"Actuel : {dir_path}")
+            self.lbl_pdf_path.setText(self.tr("Actuel : {}").format(dir_path))
 
     def create_data_panel(self, title, accent_color):
         panel = QFrame()
@@ -449,12 +456,12 @@ class MainWindow(QMainWindow):
     def start_scan(self):
         self.btn_scan.setEnabled(False)
         self.btn_export.setEnabled(False)
-        self.btn_scan.setText("Analyse en cours...")
-        self.status_badge.setText("Analyse...")
+        self.btn_scan.setText(self.tr("Analyse en cours..."))
+        self.status_badge.setText(self.tr("Analyse..."))
         self.status_badge.setStyleSheet("color: #0EA5E9; font-size: 12px; font-weight: 600; background: #1E293B; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid #0EA5E9;")
         
-        self.lbl_cpu_val.setText("Analyse en cours...")
-        self.lbl_ram_val.setText("Analyse en cours...")
+        self.lbl_cpu_val.setText(self.tr("Analyse en cours..."))
+        self.lbl_ram_val.setText(self.tr("Analyse en cours..."))
         
         self.gauge_ram.set_value(0)
         self.gauge_disk.set_value(0)
@@ -465,7 +472,7 @@ class MainWindow(QMainWindow):
         self.worker.start()
 
     def on_scan_progress(self, percent, text):
-        self.loader_label.setText(f"En cours : {text} ({percent}%)")
+        self.loader_label.setText(self.tr("En cours : {text} ({percent}%)").format(text=text, percent=percent))
 
     def animate_gauge(self, gauge_widget, target_value):
         anim = QPropertyAnimation(gauge_widget, b"value")
@@ -484,15 +491,24 @@ class MainWindow(QMainWindow):
             self.last_analysis_data = analysis
             
             if hw.get('cpu'):
-                self.lbl_cpu_val.setText(hw['cpu'].get('name', 'Inconnu'))
-                self.lbl_cpu_sub.setText(f"{hw['cpu'].get('physical_cores', '-')} Cœurs Physiques\n{hw['cpu'].get('logical_cores', '-')} Cœurs Logiques")
+                self.lbl_cpu_val.setText(hw['cpu'].get('name', self.tr('Inconnu')))
+                cpu_sub = self.tr("{cores} Cœurs Physiques\n{log} Cœurs Logiques").format(
+                    cores=hw['cpu'].get('physical_cores', '-'), 
+                    log=hw['cpu'].get('logical_cores', '-')
+                )
+                self.lbl_cpu_sub.setText(cpu_sub)
 
             if hw.get('ram'):
                 ram_brand = f"{hw['ram'].get('manufacturer', '')} {hw['ram'].get('part_number', '')}".strip()
-                self.lbl_ram_val.setText(ram_brand if ram_brand else "Mémoire système")
+                self.lbl_ram_val.setText(ram_brand if ram_brand else self.tr("Mémoire système"))
                 self.animate_gauge(self.gauge_ram, hw['ram'].get('percent_used', 0))
-                ram_sub = f"{hw['ram'].get('total_gb', '-')} Go Total\n{hw['ram'].get('available_gb', '-')} Go libres"
-                if hw['ram'].get('speed_mhz'): ram_sub += f"\n@ {hw['ram']['speed_mhz']} MHz"
+                
+                ram_sub = self.tr("{total} Go Total\n{avail} Go libres").format(
+                    total=hw['ram'].get('total_gb', '-'),
+                    avail=hw['ram'].get('available_gb', '-')
+                )
+                if hw['ram'].get('speed_mhz'): 
+                    ram_sub += self.tr("\n@ {mhz} MHz").format(mhz=hw['ram']['speed_mhz'])
                 self.lbl_ram_sub.setText(ram_sub)
 
             while self.gpu_container_layout.count():
@@ -507,45 +523,51 @@ class MainWindow(QMainWindow):
                     gpu_item_layout.setContentsMargins(0, 2, 0, 2)
                     gpu_item_layout.setSpacing(1)
                     
-                    name_lbl = QLabel(gpu.get('name', 'GPU Inconnu'))
+                    name_lbl = QLabel(gpu.get('name', self.tr('GPU Inconnu')))
                     name_lbl.setStyleSheet("font-size: 12px; font-weight: 600; color: #FAFAFA;")
-                    sub_lbl = QLabel(f"VRAM : {vram} | Pilote : {gpu.get('driver_version', 'N/A')}")
+                    
+                    sub_lbl = QLabel(self.tr("VRAM : {vram} | Pilote : {driver}").format(vram=vram, driver=gpu.get('driver_version', 'N/A')))
                     sub_lbl.setStyleSheet("font-size: 11px; color: #A1A1AA;")
                     
                     gpu_item_layout.addWidget(name_lbl)
                     gpu_item_layout.addWidget(sub_lbl)
                     self.gpu_container_layout.addWidget(gpu_item_widget)
             else:
-                no_gpu_lbl = QLabel("Aucun GPU détecté.")
+                no_gpu_lbl = QLabel(self.tr("Aucun GPU détecté."))
                 no_gpu_lbl.setStyleSheet("color: #A1A1AA; font-size: 12px;")
                 self.gpu_container_layout.addWidget(no_gpu_lbl)
 
             if hw.get('physical_disks'):
-                self.lbl_disk_val.setText(hw['physical_disks'][0].get('model', 'Disque principal'))
+                self.lbl_disk_val.setText(hw['physical_disks'][0].get('model', self.tr('Disque principal')))
             
             if hw.get('disks'):
                 d = hw['disks'][0]
                 self.animate_gauge(self.gauge_disk, d.get('percent_used', 0))
-                self.lbl_disk_sub.setText(f"Partition {d.get('mountpoint', 'C:')}\n{d.get('free_gb', '-')} Go libres sur {d.get('total_gb', '-')} Go")
+                disk_sub = self.tr("Partition {mount}\n{free} Go libres sur {total} Go").format(
+                    mount=d.get('mountpoint', 'C:'),
+                    free=d.get('free_gb', '-'),
+                    total=d.get('total_gb', '-')
+                )
+                self.lbl_disk_sub.setText(disk_sub)
 
             self.populate_components_tree_initial()
             self.populate_diagnostic_views(analysis)
 
             self.live_timer.start()
 
-            status = analysis.get('overall_status', 'INCONNU')
+            status = analysis.get('overall_status', self.tr('INCONNU'))
             border_col = "#F97316" if status == "EXCELLENT" else "#F59E0B" if status == "À SURVEILLER" else "#EF4444"
-            self.status_badge.setText(f"État : {status}")
+            self.status_badge.setText(self.tr("État : {status}").format(status=status))
             self.status_badge.setStyleSheet(f"color: #FAFAFA; font-size: 12px; font-weight: 600; background: #334155; padding: 4px 10px; border-radius: 4px; border-bottom: 2px solid {border_col};")
 
         except Exception as e:
             print(f"Erreur UI critique : {e}")
-            self.status_badge.setText("Erreur d'affichage")
+            self.status_badge.setText(self.tr("Erreur d'affichage"))
             self.status_badge.setStyleSheet("color: #FAFAFA; font-size: 12px; font-weight: 600; background: #7F1D1D; padding: 4px 10px; border-radius: 4px;")
             
         finally:
             self.btn_scan.setEnabled(True)
-            self.btn_scan.setText("Actualiser l'analyse")
+            self.btn_scan.setText(self.tr("Actualiser l'analyse"))
             self.btn_export.setEnabled(True)
 
     def get_color_for_category(self, cat_name):
@@ -561,20 +583,18 @@ class MainWindow(QMainWindow):
         return QColor(colors.get(cat_name, "#A1A1AA"))
 
     def populate_components_tree_initial(self):
-        """Construit l'arbre complet avec les icônes FontAwesome ou affiche un message d'alerte si LHM est vide."""
         try:
             self.comp_tree.clear()
             metrics = self.sensors_engine.get_live_metrics()
             
-            # 1. Icône pour la racine (Le PC Local)
-            pc_root = QTreeWidgetItem(self.comp_tree, ["PC-LOCAL", "", ""])
+            pc_root = QTreeWidgetItem(self.comp_tree, [self.tr("PC-LOCAL"), "", ""])
             pc_root.setForeground(0, QColor("#FAFAFA"))
-            pc_root.setIcon(0, qta.icon('fa5s.desktop', color='#0EA5E9')) # Icône d'ordinateur bleue
+            pc_root.setIcon(0, qta.icon('fa5s.desktop', color='#0EA5E9'))
 
             components = metrics.get("components", [])
             
             if not components:
-                err_item = QTreeWidgetItem(pc_root, ["⚠️ Moteur LHM non initialisé (vérifiez la DLL)", "", ""])
+                err_item = QTreeWidgetItem(pc_root, [self.tr("⚠️ Moteur LHM non initialisé (vérifiez la DLL)"), "", ""])
                 err_item.setForeground(0, QColor("#EF4444"))
             else:
                 for comp in components:
@@ -584,11 +604,10 @@ class MainWindow(QMainWindow):
                     comp_item = QTreeWidgetItem(pc_root, [comp_name, "", ""])
                     comp_item.setForeground(0, QColor("#F8FAFC"))
                     
-                    # 2. Icônes pour les Composants Matériels
                     if "CPU" in comp_type or "Ryzen" in comp_name or "Intel" in comp_name:
                         comp_item.setIcon(0, qta.icon('fa5s.microchip', color='#FAFAFA'))
                     elif "GPU" in comp_type or "Radeon" in comp_name or "GeForce" in comp_name:
-                        comp_item.setIcon(0, qta.icon('fa5s.vr-cardboard', color='#FAFAFA')) # Alternative pour Carte Graphique
+                        comp_item.setIcon(0, qta.icon('fa5s.vr-cardboard', color='#FAFAFA'))
                     elif "Memory" in comp_type or "RAM" in comp_name:
                         comp_item.setIcon(0, qta.icon('fa5s.memory', color='#FAFAFA'))
                     elif "Storage" in comp_type or "SSD" in comp_name or "HDD" in comp_name:
@@ -596,13 +615,12 @@ class MainWindow(QMainWindow):
                     elif "Motherboard" in comp_type or "Mainboard" in comp_name:
                         comp_item.setIcon(0, qta.icon('fa5s.network-wired', color='#FAFAFA'))
                     else:
-                        comp_item.setIcon(0, qta.icon('fa5s.server', color='#A1A1AA')) # Icône générique
+                        comp_item.setIcon(0, qta.icon('fa5s.server', color='#A1A1AA'))
                     
                     for cat_name, sensors in sorted(comp["sensor_categories"].items()):
                         cat_item = QTreeWidgetItem(comp_item, [cat_name, "", ""])
                         cat_item.setForeground(0, self.get_color_for_category(cat_name))
                         
-                        # 3. Icônes pour les Catégories de Capteurs
                         if "Temperature" in cat_name:
                             cat_item.setIcon(0, qta.icon('fa5s.thermometer-half', color='#EF4444'))
                         elif "Voltage" in cat_name:
@@ -686,21 +704,25 @@ class MainWindow(QMainWindow):
             t_row = QHBoxLayout()
             badge = QLabel(f"● {lvl}")
             badge.setStyleSheet(f"color: {color}; font-weight: 800; font-size: 10px;")
-            t_lbl = QLabel(f"<b>{report['category']}</b> : {report['title']}")
+            
+            # Formatage avec self.tr pour le diagnostic
+            t_lbl_text = self.tr("<b>{category}</b> : {title}").format(category=report['category'], title=report['title'])
+            t_lbl = QLabel(t_lbl_text)
             t_lbl.setStyleSheet("font-size: 13px; color: #F4F4F5;")
             t_row.addWidget(badge)
             t_row.addWidget(t_lbl)
             t_row.addStretch()
             r_box.addLayout(t_row)
 
-            desc = QLabel(f"{report['description']}\nConseil : {report['recommendation']}")
+            desc_text = self.tr("{desc}\nConseil : {rec}").format(desc=report['description'], rec=report['recommendation'])
+            desc = QLabel(desc_text)
             desc.setStyleSheet("font-size: 12px; color: #A1A1AA; line-height: 1.4;")
             r_box.addWidget(desc)
             self.diag_layout.addWidget(row)
         self.diag_layout.addStretch()
 
         self.all_reports_cache = analysis['reports']
-        self.filter_diagnostic("Tous")
+        self.filter_diagnostic(self.tr("Tous"))
 
     def filter_diagnostic(self, filter_level):
         for name, btn in self.filter_buttons.items():
@@ -714,10 +736,10 @@ class MainWindow(QMainWindow):
 
         if not hasattr(self, 'all_reports_cache'): return
 
-        filtered = [r for r in self.all_reports_cache if filter_level == "Tous" or r['level'] == filter_level]
+        filtered = [r for r in self.all_reports_cache if filter_level == self.tr("Tous") or r['level'] == filter_level]
 
         if not filtered:
-            empty_lbl = QLabel("Aucun rapport ne correspond à ce filtre.")
+            empty_lbl = QLabel(self.tr("Aucun rapport ne correspond à ce filtre."))
             empty_lbl.setStyleSheet("color: #71717A; font-size: 12px;")
             self.full_diag_layout.addWidget(empty_lbl)
         else:
@@ -734,14 +756,17 @@ class MainWindow(QMainWindow):
                 t_row = QHBoxLayout()
                 badge = QLabel(f"● {lvl}")
                 badge.setStyleSheet(f"color: {color}; font-weight: 800; font-size: 11px;")
-                t_lbl = QLabel(f"<b>{report['category']}</b> : {report['title']}")
+                
+                t_lbl_text = self.tr("<b>{category}</b> : {title}").format(category=report['category'], title=report['title'])
+                t_lbl = QLabel(t_lbl_text)
                 t_lbl.setStyleSheet("font-size: 13px; color: #FAFAFA;")
                 t_row.addWidget(badge)
                 t_row.addWidget(t_lbl)
                 t_row.addStretch()
                 r_box.addLayout(t_row)
 
-                desc = QLabel(f"{report['description']}\n<b>Conseil :</b> {report['recommendation']}")
+                desc_text = self.tr("{desc}\n<b>Conseil :</b> {rec}").format(desc=report['description'], rec=report['recommendation'])
+                desc = QLabel(desc_text)
                 desc.setStyleSheet("font-size: 12px; color: #A1A1AA; line-height: 1.4;")
                 r_box.addWidget(desc)
                 self.full_diag_layout.addWidget(row)
@@ -760,6 +785,8 @@ class MainWindow(QMainWindow):
                 shutil.move(path, new_path)
                 path = new_path
                 
-            QMessageBox.information(self, "Export réussi", f"Rapport PDF généré avec succès :\n{path}")
+            msg = self.tr("Rapport PDF généré avec succès :\n{path}").format(path=path)
+            QMessageBox.information(self, self.tr("Export réussi"), msg)
         except Exception as e:
-            QMessageBox.critical(self, "Erreur", f"Échec de l'exportation.\n{e}")
+            err = self.tr("Échec de l'exportation.\n{e}").format(e=e)
+            QMessageBox.critical(self, self.tr("Erreur"), err)
