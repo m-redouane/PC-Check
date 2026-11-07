@@ -6,12 +6,24 @@ Ce projet s'adresse aussi bien aux particuliers souhaitant surveiller leur syst�
 
 https://www.pc-check.fr
 
+## Aperçu de l'application
+
+| Vue d'ensemble | Diagnostic intelligent |
+| :---: | :---: |
+| ![Vue d'ensemble](assets/dashboard.png) | ![Diagnostic](assets/diagnostic.png) |
+| *Tableau de bord principal et état du système* | *Centre de diagnostic et alertes ciblées* |
+
+| Capteurs Détaillés (LHM) |
+| :---: |
+| ![Capteurs Détaillés](assets/sensors.png) |
+| *Explorateur hiérarchique des sondes et composants* |
+
 ## Fonctionnalités
 
-* Surveillance matérielle avancée : Lecture des données du processeur (CPU), de la carte graphique (GPU), de la mémoire vive (RAM) et des disques de stockage.
-* Intégration bas niveau : Exploitation de la bibliothèque LibreHardwareMonitor (LHM) pour communiquer directement avec les contrôleurs Super I/O (ITE, Nuvoton, etc.) de la carte mère.
-* Génération de rapports : Création instantanée d'un diagnostic au format PDF, listant les spécifications du système et les avertissements (surchauffe, disque saturé, etc.).
-* Exécution autonome : Disponible via un installateur propre ou en version portable, sans nécessiter l'installation de Python sur la machine cible.
+* **Surveillance matérielle avancée :** Lecture des données du processeur (CPU), de la carte graphique (GPU), de la mémoire vive (RAM) et des disques de stockage.
+* **Intégration bas niveau :** Exploitation de la bibliothèque LibreHardwareMonitor (LHM) pour communiquer directement avec les contrôleurs Super I/O (ITE, Nuvoton, etc.) de la carte mère.
+* **Génération de rapports :** Création instantanée d'un diagnostic au format PDF, listant les spécifications du système et les avertissements (surchauffe, disque saturé, etc.).
+* **Exécution autonome :** Disponible via un installateur propre ou en version portable, sans nécessiter l'installation de Python sur la machine cible.
 
 ## Prérequis
 
