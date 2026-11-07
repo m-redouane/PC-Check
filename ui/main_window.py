@@ -1,5 +1,6 @@
 import os
 import time
+import qtawesome as qta
 from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, 
                              QHBoxLayout, QGridLayout, QLabel, QPushButton, 
                              QFrame, QScrollArea, QSizePolicy, QMessageBox, 
@@ -560,13 +561,15 @@ class MainWindow(QMainWindow):
         return QColor(colors.get(cat_name, "#A1A1AA"))
 
     def populate_components_tree_initial(self):
-        """Construit l'arbre complet ou affiche un message d'alerte si LHM est vide."""
+        """Construit l'arbre complet avec les icônes FontAwesome ou affiche un message d'alerte si LHM est vide."""
         try:
             self.comp_tree.clear()
             metrics = self.sensors_engine.get_live_metrics()
             
+            # 1. Icône pour la racine (Le PC Local)
             pc_root = QTreeWidgetItem(self.comp_tree, ["PC-LOCAL", "", ""])
             pc_root.setForeground(0, QColor("#FAFAFA"))
+            pc_root.setIcon(0, qta.icon('fa5s.desktop', color='#0EA5E9')) # Icône d'ordinateur bleue
 
             components = metrics.get("components", [])
             
@@ -575,12 +578,45 @@ class MainWindow(QMainWindow):
                 err_item.setForeground(0, QColor("#EF4444"))
             else:
                 for comp in components:
-                    comp_item = QTreeWidgetItem(pc_root, [comp["name"], "", ""])
+                    comp_name = comp["name"]
+                    comp_type = comp.get("type", "")
+                    
+                    comp_item = QTreeWidgetItem(pc_root, [comp_name, "", ""])
                     comp_item.setForeground(0, QColor("#F8FAFC"))
+                    
+                    # 2. Icônes pour les Composants Matériels
+                    if "CPU" in comp_type or "Ryzen" in comp_name or "Intel" in comp_name:
+                        comp_item.setIcon(0, qta.icon('fa5s.microchip', color='#FAFAFA'))
+                    elif "GPU" in comp_type or "Radeon" in comp_name or "GeForce" in comp_name:
+                        comp_item.setIcon(0, qta.icon('fa5s.vr-cardboard', color='#FAFAFA')) # Alternative pour Carte Graphique
+                    elif "Memory" in comp_type or "RAM" in comp_name:
+                        comp_item.setIcon(0, qta.icon('fa5s.memory', color='#FAFAFA'))
+                    elif "Storage" in comp_type or "SSD" in comp_name or "HDD" in comp_name:
+                        comp_item.setIcon(0, qta.icon('fa5s.hdd', color='#FAFAFA'))
+                    elif "Motherboard" in comp_type or "Mainboard" in comp_name:
+                        comp_item.setIcon(0, qta.icon('fa5s.network-wired', color='#FAFAFA'))
+                    else:
+                        comp_item.setIcon(0, qta.icon('fa5s.server', color='#A1A1AA')) # Icône générique
                     
                     for cat_name, sensors in sorted(comp["sensor_categories"].items()):
                         cat_item = QTreeWidgetItem(comp_item, [cat_name, "", ""])
                         cat_item.setForeground(0, self.get_color_for_category(cat_name))
+                        
+                        # 3. Icônes pour les Catégories de Capteurs
+                        if "Temperature" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.thermometer-half', color='#EF4444'))
+                        elif "Voltage" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.bolt', color='#EAB308'))
+                        elif "Fan" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.fan', color='#3B82F6'))
+                        elif "Power" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.plug', color='#DC2626'))
+                        elif "Clock" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.tachometer-alt', color='#6366F1'))
+                        elif "Load" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.chart-line', color='#3B82F6'))
+                        elif "Data" in cat_name:
+                            cat_item.setIcon(0, qta.icon('fa5s.database', color='#8B5CF6'))
                         
                         for sensor in sensors:
                             sensor_item = QTreeWidgetItem(cat_item, [sensor["name"], sensor["value"], sensor["value"]])
