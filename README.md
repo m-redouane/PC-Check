@@ -4,7 +4,7 @@ PC-Check est un utilitaire de diagnostic matériel conçu pour les environnement
 
 Ce projet s'adresse aussi bien aux particuliers souhaitant surveiller leur système qu'aux techniciens informatiques ayant besoin d'éditer des rapports d'intervention fiables.
 
-http://www.pc-check.fr
+https://www.pc-check.fr
 
 ## Fonctionnalités
 
