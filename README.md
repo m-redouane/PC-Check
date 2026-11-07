@@ -4,6 +4,8 @@ PC-Check est un utilitaire de diagnostic matériel conçu pour les environnement
 
 Ce projet s'adresse aussi bien aux particuliers souhaitant surveiller leur système qu'aux techniciens informatiques ayant besoin d'éditer des rapports d'intervention fiables.
 
+http://www.pc-check.fr
+
 ## Fonctionnalités
 
 * Surveillance matérielle avancée : Lecture des données du processeur (CPU), de la carte graphique (GPU), de la mémoire vive (RAM) et des disques de stockage.
