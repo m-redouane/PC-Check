@@ -5,53 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PC Check - Diagnostic Matériel Professionnel</title>
     <meta name="description" content="L'outil de diagnostic matériel 100% local pour Windows. Surveillez vos composants en temps réel.">
+    
+    <!-- Police style Interface Logiciel (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Librairie d'icônes incassables (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Script Google AdSense (À activer plus tard) -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXX" crossorigin="anonymous"></script>
+    
+    <style>
+        /* Application de la nouvelle police à tout le site */
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-[#050505] font-sans text-gray-200">
+<body class="bg-[#050505] text-gray-200">
 
     <!-- Navbar -->
-    <nav class="bg-[#0A0D14] border-b border-gray-800 text-white px-6 py-4 flex justify-between items-center">
-        <div class="font-bold text-xl tracking-wider flex items-center gap-2">
-            <span class="text-[#82B541]">⚙️</span> PC-CHECK
+    <nav class="bg-[#0A0D14] border-b border-gray-800 text-white px-6 py-4 flex justify-between items-center shadow-lg">
+        <div class="font-bold text-xl tracking-wider flex items-center gap-3">
+            <!-- Vrai logo de ton application récupéré depuis ton GitHub -->
+            <img src="https://raw.githubusercontent.com/m-redouane/PC-Check/main/assets/logo.ico" alt="Logo PC-Check" class="w-8 h-8 drop-shadow-md">
+            PC-CHECK
         </div>
-        <!-- Bouton PayPal -->
+        
+        <!-- Bouton PayPal avec icône FontAwesome -->
         <a href="https://paypal.me/MhendRedouane" target="_blank" class="bg-[#FFC439] hover:bg-[#F4BB33] text-black font-bold py-2 px-4 rounded-md shadow flex items-center gap-2 transition">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" class="h-4">
+            <i class="fa-brands fa-paypal text-blue-900 text-lg"></i>
             <span>Soutenir le projet</span>
         </a>
     </nav>
 
     <!-- Header / Hero -->
     <header class="bg-[#0A0D14] text-center pt-16 pb-32 px-4">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-white">L'analyse matérielle, <span class="text-[#82B541]">simplifiée.</span></h1>
-        <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto">PC-Check lit en temps réel les sondes de votre processeur, carte graphique et carte mère. 100% local, sans compte, sans cloud.</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-white tracking-tight">L'analyse matérielle, <span class="text-[#82B541]">simplifiée.</span></h1>
+        <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto font-medium">PC-Check lit en temps réel les sondes de votre processeur, carte graphique et carte mère. 100% local, sans compte, sans cloud.</p>
 
         <!-- Emplacement PUB 1 -->
         <div class="max-w-3xl mx-auto bg-[#111] h-24 flex items-center justify-center text-gray-600 text-sm border border-gray-800 rounded">
-            <!-- AdSense injectera la pub ici -->
             [Espace Publicitaire]
         </div>
     </header>
 
     <!-- Carte de téléchargement Centrale -->
     <section class="max-w-sm mx-auto px-4 -mt-20 relative z-10">
-        <div class="bg-gray-900 rounded-xl shadow-2xl p-8 text-center border border-gray-700">
-            <div class="flex justify-center mb-4">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" alt="Windows" class="w-12 h-12">
+        <div class="bg-gray-900 rounded-xl shadow-2xl p-8 text-center border border-gray-700 hover:border-gray-600 transition-colors">
+            
+            <!-- Icône Windows intégrée (ne cassera jamais) -->
+            <div class="flex justify-center mb-5">
+                <i class="fa-brands fa-windows text-6xl text-gray-300"></i>
             </div>
+            
             <h2 class="text-3xl font-bold mb-1 text-white">PC-Check</h2>
-            <p class="text-gray-400 text-sm mb-1">Windows 10/11 (64-bit)</p>
+            <p class="text-gray-400 text-sm mb-1 font-medium">Windows 10/11 (64-bit)</p>
             <p class="text-xs text-gray-500 mb-6">Version 1.0.6 (Stable)</p>
             
-            <!-- LIEN DIRECT DE TELECHARGEMENT -->
-            <a href="https://github.com/m-redouane/PC-Check/releases/download/v1.0.6/PC-Check-Setup-v1.0.6.exe" class="block w-full bg-[#82B541] hover:bg-[#6A9632] text-white font-bold py-3 px-4 rounded-md transition shadow-lg">
+            <!-- LIEN DIRECT DE TÉLÉCHARGEMENT -->
+            <a href="https://github.com/m-redouane/PC-Check/releases/download/v1.0.6/PC-Check-Setup-v1.0.6.exe" class="block w-full bg-[#82B541] hover:bg-[#6A9632] text-white font-bold py-3 px-4 rounded-md transition shadow-lg text-lg">
                 Télécharger l'Installateur
             </a>
             
-            <p class="text-xs text-gray-500 mt-4">Fichier sécurisé généré via Inno Setup.</p>
+            <p class="text-xs text-gray-500 mt-4"><i class="fa-solid fa-shield-halved mr-1"></i> Fichier sécurisé généré via Inno Setup.</p>
         </div>
     </section>
 
@@ -60,16 +75,16 @@
         <h3 class="font-bold text-gray-500 mb-6 uppercase tracking-wider text-sm">Le matériel recommandé par le développeur</h3>
         <div class="grid md:grid-cols-2 gap-6">
             
-            <!-- Produit 1 -->
-            <a href="TON_LIEN_AFFILIE_AMAZON_1" target="_blank" class="bg-gray-900 p-5 flex flex-col items-center justify-center border border-gray-800 rounded-lg shadow-sm hover:border-[#82B541] transition group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="h-6 mb-3 opacity-80 group-hover:opacity-100 transition filter invert">
+            <!-- Produit 1 (Vrai lien Amazon ajouté) -->
+            <a href="https://www.amazon.fr/ARCTIC-MX-4-Grammes-P%C3%A2te-Thermique/dp/B07L9BDY3T/" target="_blank" class="bg-gray-900 p-6 flex flex-col items-center justify-center border border-gray-800 rounded-lg shadow-sm hover:border-[#82B541] transition group">
+                <i class="fa-brands fa-amazon text-4xl mb-3 text-gray-400 group-hover:text-white transition"></i>
                 <span class="text-gray-200 font-semibold text-sm">Pâte Thermique ARCTIC MX-4</span>
                 <span class="text-xs text-gray-500 mt-1">Évitez la surchauffe de votre CPU</span>
             </a>
             
-            <!-- Produit 2 -->
-            <a href="TON_LIEN_AFFILIE_AMAZON_2" target="_blank" class="bg-gray-900 p-5 flex flex-col items-center justify-center border border-gray-800 rounded-lg shadow-sm hover:border-[#82B541] transition group">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" class="h-6 mb-3 opacity-80 group-hover:opacity-100 transition filter invert">
+            <!-- Produit 2 (Vrai lien Amazon ajouté) -->
+            <a href="https://www.amazon.fr/Crucial-PCIe-Gen3-NVMe-interne/dp/B0B25LZGGW/" target="_blank" class="bg-gray-900 p-6 flex flex-col items-center justify-center border border-gray-800 rounded-lg shadow-sm hover:border-[#82B541] transition group">
+                <i class="fa-brands fa-amazon text-4xl mb-3 text-gray-400 group-hover:text-white transition"></i>
                 <span class="text-gray-200 font-semibold text-sm">SSD NVMe Crucial P3 1To</span>
                 <span class="text-xs text-gray-500 mt-1">Boostez la réactivité de Windows</span>
             </a>
