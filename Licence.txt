@@ -1,19 +1,19 @@
-CONTRAT DE LICENCE UTILISATEUR FINAL (CLUF) POUR PC-CHECK
+END-USER LICENSE AGREEMENT (EULA) FOR PC-CHECK
 
-Important - à lire attentivement : Ce contrat de licence utilisateur final ("CLUF") est un accord juridique entre vous (personne physique ou morale) et le développeur (Redouane MHEND) pour le logiciel PC-Check ("LOGICIEL").
+Important – Read Carefully: This End-User License Agreement ("EULA") is a legal agreement between you (an individual or a legal entity) and the developer (Redouane MHEND) regarding the software PC-Check ("SOFTWARE").
 
-En installant, copiant ou utilisant le LOGICIEL, vous acceptez d'être lié par les termes de ce CLUF. Si vous n'acceptez pas les termes de ce CLUF, ne l'installez pas et ne l'utilisez pas.
+By installing, copying, or using the SOFTWARE, you agree to be bound by the terms of this EULA. If you do not agree to the terms of this EULA, do not install or use the SOFTWARE.
 
-1. CONCESSION DE LICENCE
-Le LOGICIEL est concédé sous licence et non vendu. Redouane MHEND vous accorde le droit d'utiliser une copie du LOGICIEL sur vos ordinateurs personnels ou professionnels à des fins de diagnostic matériel.
+1. GRANT OF LICENSE
+The SOFTWARE is licensed, not sold. Redouane MHEND grants you the right to use one copy of the SOFTWARE on your personal or professional computers for the purpose of hardware diagnostics.
 
-2. PROPRIÉTÉ INTELLECTUELLE
-Tous les droits de propriété intellectuelle du LOGICIEL (incluant notamment le code source, les graphismes, le logo et la documentation) sont et restent la propriété exclusive de Redouane MHEND.
+2. INTELLECTUAL PROPERTY
+All intellectual property rights in the SOFTWARE (including, but not limited to, the source code, graphics, logo, and documentation) are and shall remain the exclusive property of Redouane MHEND.
 
-3. LIMITATION DE RESPONSABILITÉ
-Le LOGICIEL est fourni "en l'état", sans garantie d'aucune sorte, explicite ou implicite. En aucun cas l'auteur ne pourra être tenu responsable des dommages directs ou indirects (perte de données, instabilité matérielle) résultant de l'utilisation ou de l'incapacité d'utilisation du LOGICIEL.
+3. LIMITATION OF LIABILITY
+The SOFTWARE is provided "as is," without any warranties of any kind, either express or implied. In no event shall the author be held liable for any direct or indirect damages (such as data loss or hardware instability) resulting from the use or inability to use the SOFTWARE.
 
 4. DISTRIBUTION
-La distribution non autorisée, la modification ou la rétro-ingénierie du code source compilé du LOGICIEL sont strictement interdites sans l'accord préalable de l'auteur.
+Unauthorized distribution, modification, or reverse engineering of the compiled source code of the SOFTWARE is strictly prohibited without the prior consent of the author.
 
-Copyright © 2026 Redouane MHEND. Tous droits réservés.
+Copyright © 2026 Redouane MHEND. All rights reserved.
