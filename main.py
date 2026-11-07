@@ -1,33 +1,44 @@
 import sys
-from PySide6.QtWidgets import QApplication
-from PySide6.QtGui import QIcon
-from PySide6.QtCore import QTranslator
-from ui.main_window import MainWindow
 import os
+import winreg
+from importlib import import_module
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QTranslator
 
-def resource_path(relative_path):
-    """ Obtient le chemin absolu vers la ressource, compatible dev et PyInstaller """
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+main_window = import_module("main_window")
+
+def lire_langue_installation():
+    """Lit le registre Windows pour savoir ce qu'Inno Setup a enregistré"""
     try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
-
-def main():
-    app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(resource_path("assets/logo.ico")))
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
-    translator = QTranslator()
-# On charge le fichier compilé généré par Qt Linguist
-    if translator.load("assets/en_US.qm"): 
-        app.installTranslator(translator)
-
-    # Le reste de ton application...
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec())
+        # On va chercher la clé créée par Inno Setup
+        cle = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\PCCheck")
+        valeur, _ = winreg.QueryValueEx(cle, "Langue")
+        winreg.CloseKey(cle)
+        
+        # Si l'installateur était en anglais, on retourne "en"
+        if valeur == "english":
+            return "en"
+    except FileNotFoundError:
+        pass
+    
+    # Par défaut (ou si la clé n'existe pas), on reste en français
+    return "fr"
 
 if __name__ == "__main__":
-    main()
+    app = QApplication(sys.argv)
+    
+    # 1. On détecte la langue de l'installateur
+    langue_choisie = lire_langue_installation()
+    
+    # 2. Si c'est l'anglais, on charge le fichier de traduction compilé
+    if langue_choisie == "en":
+        translator = QTranslator()
+        # Assure-toi que "en.qm" est généré avec Qt Linguist et placé dans le bon dossier
+        if translator.load("en.qm"):
+            app.installTranslator(translator)
+            
+    # 3. Lancement normal de PC Check
+    window = main_window.MainWindow()
+    window.show()
+    sys.exit(app.exec())

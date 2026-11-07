@@ -20,6 +20,10 @@ WizardStyle=modern
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Registry]
+; Sauvegarde la langue de l'installateur dans le registre de l'utilisateur
+Root: HKCU; Subkey: "Software\PCCheck"; ValueType: string; ValueName: "Langue"; ValueData: "{language}"; Flags: uninsdeletekey
+
 [Tasks]
 Name: "desktopicon"; Description: "Créer un raccourci sur le bureau"; GroupDescription: "Tâches supplémentaires:"
 
