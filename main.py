@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTranslator
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-main_window = import_module("main_window")
+main_window = import_module("ui.main_window")
 
 def lire_langue_installation():
     """Lit le registre Windows pour savoir ce qu'Inno Setup a enregistré"""

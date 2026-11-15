@@ -3,18 +3,20 @@
 #define MyAppPublisher "Redouane MHEND"
 
 [Setup]
-AppId={{55F981E3-4110-4A32-A3DE-B4BF1EF799B9}
-AppName={#MyAppName}
-AppVersion={#MyAppVersion}
-AppPublisher={#MyAppPublisher}
-; Crée le dossier dans C:\Program Files\PC Check
-DefaultDirName={autopf}\{#MyAppName}
-DefaultGroupName={#MyAppName}
-LicenseFile=C:\Users\mhend\PC-Check\Licence.txt
+AppName=PC Check
+AppVersion=1.0.6
+AppPublisher=Redouane MHEND
+AppPublisherURL=https://pc-check.fr
+DefaultDirName={autopf}\PC-Check
+DefaultGroupName=PC Check
+OutputDir=output
 OutputBaseFilename=PC-Check-Setup-v1.0.6
-SetupIconFile=C:\Users\mhend\PC-Check\assets\logo.ico
+Compression=lzma
 SolidCompression=yes
-WizardStyle=modern
+; --- CES LIGNES SONT CRUCIALES POUR APPARAÎTRE DANS LES APPS ---
+PrivilegesRequired=lowest
+ArchitecturesInstallIn64BitMode=x64compatible
+UninstallDisplayIcon={app}\pc_check.exe
 
 [Languages]
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
@@ -28,15 +30,13 @@ Root: HKCU; Subkey: "Software\PCCheck"; ValueType: string; ValueName: "Langue"; 
 Name: "desktopicon"; Description: "Créer un raccourci sur le bureau"; GroupDescription: "Tâches supplémentaires:"
 
 [Files]
-; DestDir est maintenant {app} (le dossier Program Files) au lieu de {win}
-Source: "C:\Users\mhend\PC-Check\dist\PC-Check.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\PC-Check\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Assure-toi que ton en.qm est bien copié dans le dossier de destination
+Source: "en.qm"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-; Raccourci dans le menu Démarrer
-Name: "{group}\{#MyAppName}"; Filename: "{app}\PC-Check.exe"
-; Raccourci sur le bureau
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\PC-Check.exe"; Tasks: desktopicon
+Name: "{group}\PC Check"; Filename: "{app}\pc_check.exe"
+Name: "{autodesktop}\PC Check"; Filename: "{app}\pc_check.exe"; Tasks: desktopicon
 
 [Run]
-; Lancer l'application à la fin de l'installation
-Filename: "{app}\PC-Check.exe"; Description: "Lancer {#MyAppName} maintenant"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\PC-Check.exe"; Description: "Run PC Check"; Flags: nowait postinstall skipifsilent runascurrentuser
